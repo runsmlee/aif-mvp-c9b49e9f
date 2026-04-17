@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { DEFAULT_PROVIDERS } from '../data/mockData';
 import type { Provider } from '../types';
