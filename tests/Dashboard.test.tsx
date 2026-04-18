@@ -11,7 +11,7 @@ function renderWithProvider(ui: React.ReactElement) {
 describe('Dashboard', () => {
   it('renders without crash', () => {
     renderWithProvider(<Dashboard />);
-    expect(screen.getByText((_content, element) => element?.tagName === 'H1' && element?.textContent === 'RouteForge', { exact: false })).toBeInTheDocument();
+    expect(screen.getByText((_content, element) => element?.tagName === 'H1' && element?.textContent === 'LogRoute', { exact: false })).toBeInTheDocument();
   });
 
   it('displays all four main navigation tabs: Router, Fallbacks, Analytics, Providers', () => {

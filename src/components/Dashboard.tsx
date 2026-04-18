@@ -84,12 +84,12 @@ export default function Dashboard() {
                 </svg>
               </div>
               <h1 className="text-lg font-bold text-text-primary tracking-tight">
-                Route<span className="text-primary">Forge</span>
+                Log<span className="text-primary">Route</span>
               </h1>
             </div>
             <span className="text-xs text-text-muted hidden sm:flex items-center gap-1.5 bg-surface-alt px-3 py-1.5 rounded-full border border-border-subtle">
               <span className="w-1.5 h-1.5 rounded-full bg-success animate-[pulse-dot_2s_ease-in-out_infinite]" />
-              Confidence-Based LLM Routing
+              The insurance layer for your LLM stack
             </span>
           </div>
         </div>

@@ -1,9 +1,9 @@
 import { useState, useCallback } from 'react';
 
-const CODE_SNIPPET = `import { RouteForge } from '@routeforge/sdk';
+const CODE_SNIPPET = `import { LogRoute } from '@logroute/sdk';
 
-const forge = new RouteForge({ apiKey: process.env.RF_KEY });
-const response = await forge.route('Explain quantum computing');
+const route = new LogRoute({ apiKey: process.env.LR_KEY });
+const response = await route.guard('Explain quantum computing');
 console.log(response.model, response.confidence);`;
 
 export default function CodeSnippet() {

@@ -3,7 +3,7 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 import { DEFAULT_PROVIDERS } from '../data/mockData';
 import type { Provider } from '../types';
 
-const STORAGE_KEY = 'routeforge-providers';
+const STORAGE_KEY = 'logroute-providers';
 
 export default function ProviderRegistry() {
   const [providers, setProviders] = useLocalStorage<Provider[]>(STORAGE_KEY, DEFAULT_PROVIDERS);
