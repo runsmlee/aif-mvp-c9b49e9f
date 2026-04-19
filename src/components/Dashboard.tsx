@@ -1,13 +1,19 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, lazy, Suspense } from 'react';
 import { useRouting } from '../context/RoutingContext';
+import { ErrorBoundary } from './ErrorBoundary';
+import { LoadingSkeleton } from './LoadingSkeleton';
+import { ToastContainer } from './Toast';
+
+// Eager imports for default tab (Router) — ensures first-screen renders without Suspense delay
 import ConfidenceRouter from './ConfidenceRouter';
-import FallbackChain from './FallbackChain';
-import RoutingAnalytics from './RoutingAnalytics';
+import RequestLogInspector from './RequestLogInspector';
 import CostSimulator from './CostSimulator';
 import CodeSnippet from './CodeSnippet';
-import RequestLogInspector from './RequestLogInspector';
-import ProviderRegistry from './ProviderRegistry';
-import { ToastContainer } from './Toast';
+
+// Lazy imports for non-default tabs — reduces initial bundle size
+const FallbackChain = lazy(() => import('./FallbackChain'));
+const RoutingAnalytics = lazy(() => import('./RoutingAnalytics'));
+const ProviderRegistry = lazy(() => import('./ProviderRegistry'));
 
 type TabId = 'router' | 'fallbacks' | 'analytics' | 'providers';
 
@@ -54,18 +60,44 @@ export default function Dashboard() {
                 </p>
               </div>
             )}
-            <ConfidenceRouter />
-            <RequestLogInspector />
-            <CostSimulator />
-            <CodeSnippet />
+            <ErrorBoundary>
+              <ConfidenceRouter />
+            </ErrorBoundary>
+            <ErrorBoundary>
+              <RequestLogInspector />
+            </ErrorBoundary>
+            <ErrorBoundary>
+              <CostSimulator />
+            </ErrorBoundary>
+            <ErrorBoundary>
+              <CodeSnippet />
+            </ErrorBoundary>
           </div>
         );
       case 'fallbacks':
-        return <FallbackChain />;
+        return (
+          <ErrorBoundary>
+            <Suspense fallback={<LoadingSkeleton />}>
+              <FallbackChain />
+            </Suspense>
+          </ErrorBoundary>
+        );
       case 'analytics':
-        return <RoutingAnalytics />;
+        return (
+          <ErrorBoundary>
+            <Suspense fallback={<LoadingSkeleton />}>
+              <RoutingAnalytics />
+            </Suspense>
+          </ErrorBoundary>
+        );
       case 'providers':
-        return <ProviderRegistry />;
+        return (
+          <ErrorBoundary>
+            <Suspense fallback={<LoadingSkeleton />}>
+              <ProviderRegistry />
+            </Suspense>
+          </ErrorBoundary>
+        );
       default:
         return null;
     }

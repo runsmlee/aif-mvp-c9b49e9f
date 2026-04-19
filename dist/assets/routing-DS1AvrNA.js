@@ -1,0 +1,1 @@
+var e=-1.5;function t(t,n){return t<e&&n>=.5}function n(e){let t=e.length,n=e.filter(e=>e.decision===`escalated`).length,r=t>0?n/t:0,i=t>0?e.reduce((e,t)=>e+t.latencyMs,0)/t:0,a=e.reduce((e,t)=>e+500/1e3*15,0)-e.reduce((e,t)=>e+t.costUsd,0);return{totalRequests:t,escalations:n,escalationRate:r,avgLatencyMs:Math.round(i),costSavingsUsd:Math.round(a*100)/100}}export{t as n,n as t};
