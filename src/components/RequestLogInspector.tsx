@@ -63,8 +63,8 @@ export default function RequestLogInspector() {
         </div>
       </section>
 
-      {/* Log Table */}
-      <section className="bg-surface rounded-xl border border-border overflow-hidden" aria-label="Request log table">
+      {/* Desktop Table View */}
+      <section className="bg-surface rounded-xl border border-border overflow-hidden hidden sm:block" aria-label="Request log table">
         <div className="overflow-x-auto">
           <table className="w-full text-sm" role="table">
             <thead>
@@ -156,6 +156,66 @@ export default function RequestLogInspector() {
           <div className="px-4 py-2.5 bg-surface-alt/30 border-t border-border-subtle text-xs text-text-muted tabular-nums">
             Showing {filteredEvents.length} of {events.length} requests
           </div>
+        )}
+      </section>
+
+      {/* Mobile Card View */}
+      <section className="sm:hidden space-y-2" aria-label="Request log cards">
+        {filteredEvents.length === 0 ? (
+          <div className="bg-surface rounded-xl border border-border p-8 text-center">
+            <svg className="w-8 h-8 text-text-muted/50 mx-auto mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <p className="text-sm text-text-muted">No results found</p>
+          </div>
+        ) : (
+          filteredEvents.map(event => (
+            <div
+              key={event.id}
+              className="bg-surface rounded-lg border border-border-subtle p-3 space-y-2"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono text-text-muted tabular-nums">
+                  {new Date(event.timestamp).toLocaleTimeString()}
+                </span>
+                <span
+                  className={`inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded-full ${
+                    event.decision === 'accepted'
+                      ? 'bg-success/15 text-success border border-success/20'
+                      : 'bg-warning/15 text-warning border border-warning/20'
+                  }`}
+                >
+                  {event.decision}
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-sm font-medium text-text-primary">{event.primaryModel}</span>
+                {event.fallbackModel && (
+                  <>
+                    <svg className="w-3 h-3 text-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                    <span className="text-sm text-primary">{event.fallbackModel}</span>
+                  </>
+                )}
+              </div>
+              <div className="flex items-center gap-3 text-xs">
+                <span className={`font-mono px-1.5 py-0.5 rounded ${
+                  event.confidenceScore < -1.5
+                    ? 'text-warning bg-warning/10'
+                    : 'text-success bg-success/10'
+                }`}>
+                  {event.confidenceScore}
+                </span>
+                <span className="font-mono text-text-muted">{event.latencyMs}ms</span>
+              </div>
+            </div>
+          ))
+        )}
+        {filteredEvents.length > 0 && (
+          <p className="text-xs text-text-muted text-center py-1 tabular-nums">
+            Showing {filteredEvents.length} of {events.length}
+          </p>
         )}
       </section>
     </div>

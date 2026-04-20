@@ -35,4 +35,17 @@ describe('Dashboard', () => {
     renderWithProvider(<Dashboard />);
     expect(screen.getByText(/no routing rules configured/i)).toBeInTheDocument();
   });
+
+  // --- Improvement tests: Quick-start hero section ---
+  it('renders a quick-start section with step-by-step guidance', () => {
+    renderWithProvider(<Dashboard />);
+    expect(screen.getByTestId('quick-start')).toBeInTheDocument();
+  });
+
+  it('quick-start section contains at least 3 setup steps', () => {
+    renderWithProvider(<Dashboard />);
+    const quickStart = screen.getByTestId('quick-start');
+    const steps = quickStart.querySelectorAll('[data-testid^="quick-step-"]');
+    expect(steps.length).toBeGreaterThanOrEqual(3);
+  });
 });

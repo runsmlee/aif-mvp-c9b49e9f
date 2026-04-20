@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { generateCostSimulation } from '../data/mockData';
 import type { CostSimulationResult } from '../types';
 
@@ -6,6 +6,11 @@ export default function CostSimulator() {
   const [volume, setVolume] = useState('10000');
   const [results, setResults] = useState<CostSimulationResult[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Auto-run simulation on mount with default volume
+  useEffect(() => {
+    setResults(generateCostSimulation(10000));
+  }, []);
 
   const handleSimulate = useCallback(() => {
     const numVolume = parseInt(volume, 10);

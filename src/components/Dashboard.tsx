@@ -1,16 +1,17 @@
 import { useState, useCallback, useMemo, lazy, Suspense } from 'react';
 import { useRouting } from '../context/RoutingContext';
+import { calculateStats } from '../utils/routing';
 import { ErrorBoundary } from './ErrorBoundary';
 import { LoadingSkeleton } from './LoadingSkeleton';
 import { ToastContainer } from './Toast';
 
-// Eager imports for default tab (Router) — ensures first-screen renders without Suspense delay
+// Eager import only for the default tab's primary component
 import ConfidenceRouter from './ConfidenceRouter';
-import RequestLogInspector from './RequestLogInspector';
-import CostSimulator from './CostSimulator';
-import CodeSnippet from './CodeSnippet';
 
-// Lazy imports for non-default tabs — reduces initial bundle size
+// Lazy imports for all other sections — reduces initial bundle size
+const RequestLogInspector = lazy(() => import('./RequestLogInspector'));
+const CostSimulator = lazy(() => import('./CostSimulator'));
+const CodeSnippet = lazy(() => import('./CodeSnippet'));
 const FallbackChain = lazy(() => import('./FallbackChain'));
 const RoutingAnalytics = lazy(() => import('./RoutingAnalytics'));
 const ProviderRegistry = lazy(() => import('./ProviderRegistry'));
@@ -32,9 +33,10 @@ const TABS: Tab[] = [
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<TabId>('router');
-  const { fallbackChain } = useRouting();
+  const { fallbackChain, events } = useRouting();
 
   const hasRoutingRules = fallbackChain.length > 0;
+  const stats = useMemo(() => calculateStats(events), [events]);
 
   const handleTabChange = useCallback((tabId: TabId) => {
     setActiveTab(tabId);
@@ -45,6 +47,26 @@ export default function Dashboard() {
       case 'router':
         return (
           <div className="space-y-8">
+            {/* Hero Summary Bar */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3" aria-label="Quick stats overview">
+              <div className="bg-surface rounded-xl border border-border-subtle p-4 hover:border-border transition-colors duration-200">
+                <p className="text-xs text-text-muted uppercase tracking-wider font-medium mb-1">Requests</p>
+                <p className="text-xl font-bold text-text-primary tabular-nums">{stats.totalRequests}</p>
+              </div>
+              <div className="bg-surface rounded-xl border border-border-subtle p-4 hover:border-border transition-colors duration-200">
+                <p className="text-xs text-text-muted uppercase tracking-wider font-medium mb-1">Escalated</p>
+                <p className="text-xl font-bold text-warning tabular-nums">{stats.escalations}</p>
+              </div>
+              <div className="bg-surface rounded-xl border border-border-subtle p-4 hover:border-border transition-colors duration-200">
+                <p className="text-xs text-text-muted uppercase tracking-wider font-medium mb-1">Avg Latency</p>
+                <p className="text-xl font-bold text-text-primary tabular-nums">{stats.avgLatencyMs}ms</p>
+              </div>
+              <div className="bg-surface rounded-xl border border-success/20 p-4 hover:border-success/30 transition-colors duration-200">
+                <p className="text-xs text-text-muted uppercase tracking-wider font-medium mb-1">Saved</p>
+                <p className="text-xl font-bold text-success tabular-nums">${stats.costSavingsUsd.toFixed(2)}</p>
+              </div>
+            </div>
+
             {!hasRoutingRules && (
               <div className="bg-surface rounded-xl border border-dashed border-border p-6 text-center">
                 <div className="w-10 h-10 rounded-full bg-warning/10 flex items-center justify-center mx-auto mb-3">
@@ -60,17 +82,61 @@ export default function Dashboard() {
                 </p>
               </div>
             )}
+
+            {/* Quick-Start Guide */}
+            <section className="bg-surface rounded-xl border border-border p-6" aria-label="Quick start guide" data-testid="quick-start">
+              <div className="flex items-center gap-2.5 mb-5">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 className="text-base font-semibold text-text-primary">Get Started in 3 Steps</h2>
+                  <p className="text-xs text-text-muted mt-0.5">Set up intelligent routing for your LLM calls</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="p-4 bg-surface-alt/60 rounded-lg border border-border-subtle" data-testid="quick-step-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="flex items-center justify-center w-6 h-6 text-xs font-bold text-primary bg-primary/10 rounded-md">1</span>
+                    <span className="text-sm font-medium text-text-primary">Connect Provider</span>
+                  </div>
+                  <p className="text-xs text-text-muted">Add your LLM provider API key in the Providers tab to enable routing.</p>
+                </div>
+                <div className="p-4 bg-surface-alt/60 rounded-lg border border-border-subtle" data-testid="quick-step-2">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="flex items-center justify-center w-6 h-6 text-xs font-bold text-primary bg-primary/10 rounded-md">2</span>
+                    <span className="text-sm font-medium text-text-primary">Set Threshold</span>
+                  </div>
+                  <p className="text-xs text-text-muted">Configure the confidence threshold below. Requests below it auto-escalate.</p>
+                </div>
+                <div className="p-4 bg-surface-alt/60 rounded-lg border border-border-subtle" data-testid="quick-step-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="flex items-center justify-center w-6 h-6 text-xs font-bold text-primary bg-primary/10 rounded-md">3</span>
+                    <span className="text-sm font-medium text-text-primary">Build Chain</span>
+                  </div>
+                  <p className="text-xs text-text-muted">Create a fallback chain with 3+ models for optimal cost-quality balance.</p>
+                </div>
+              </div>
+            </section>
             <ErrorBoundary>
               <ConfidenceRouter />
             </ErrorBoundary>
             <ErrorBoundary>
-              <RequestLogInspector />
+              <Suspense fallback={<LoadingSkeleton />}>
+                <RequestLogInspector />
+              </Suspense>
             </ErrorBoundary>
             <ErrorBoundary>
-              <CostSimulator />
+              <Suspense fallback={<LoadingSkeleton />}>
+                <CostSimulator />
+              </Suspense>
             </ErrorBoundary>
             <ErrorBoundary>
-              <CodeSnippet />
+              <Suspense fallback={<LoadingSkeleton />}>
+                <CodeSnippet />
+              </Suspense>
             </ErrorBoundary>
           </div>
         );
@@ -101,10 +167,32 @@ export default function Dashboard() {
       default:
         return null;
     }
-  }, [activeTab, hasRoutingRules]);
+  }, [activeTab, hasRoutingRules, stats]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    const tabIds: TabId[] = ['router', 'fallbacks', 'analytics', 'providers'];
+    const currentIndex = tabIds.indexOf(activeTab);
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      const nextIndex = (currentIndex + 1) % tabIds.length;
+      setActiveTab(tabIds[nextIndex]);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const prevIndex = (currentIndex - 1 + tabIds.length) % tabIds.length;
+      setActiveTab(tabIds[prevIndex]);
+    }
+  }, [activeTab]);
 
   return (
     <div className="min-h-screen bg-gray-950 text-text-primary">
+      {/* Skip to content link for accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary focus:text-white focus:rounded-lg focus:text-sm focus:font-medium focus:outline-none"
+      >
+        Skip to content
+      </a>
+
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-border/80 bg-surface/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -130,7 +218,7 @@ export default function Dashboard() {
       {/* Tab Navigation */}
       <nav className="border-b border-border bg-surface/60 backdrop-blur-sm" aria-label="Main navigation">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex gap-1 overflow-x-auto -mb-px" role="tablist">
+          <div className="flex gap-1 overflow-x-auto -mb-px" role="tablist" onKeyDown={handleKeyDown}>
             {TABS.map(tab => (
               <button
                 key={tab.id}
@@ -138,6 +226,7 @@ export default function Dashboard() {
                 aria-selected={activeTab === tab.id}
                 aria-controls={`panel-${tab.id}`}
                 id={`tab-${tab.id}`}
+                tabIndex={activeTab === tab.id ? 0 : -1}
                 onClick={() => handleTabChange(tab.id)}
                 className={`relative px-4 py-3 text-sm font-medium whitespace-nowrap min-w-[44px] min-h-[44px] flex items-center justify-center transition-colors duration-200
                   ${
@@ -159,7 +248,7 @@ export default function Dashboard() {
       </nav>
 
       {/* Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main id="main-content" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div
           role="tabpanel"
           id={`panel-${activeTab}`}

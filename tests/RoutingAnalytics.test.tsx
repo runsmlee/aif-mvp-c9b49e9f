@@ -50,4 +50,19 @@ describe('RoutingAnalytics', () => {
     const cards = screen.getByTestId('analytics-cards');
     expect(cards).toBeInTheDocument();
   });
+
+  // --- Improvement tests: Per-model breakdown ---
+  it('renders per-model performance breakdown section', () => {
+    renderWithProvider(<RoutingAnalytics />);
+    expect(screen.getByTestId('per-model-breakdown')).toBeInTheDocument();
+  });
+
+  it('per-model breakdown shows model names with request counts', () => {
+    renderWithProvider(<RoutingAnalytics />);
+    const breakdown = screen.getByTestId('per-model-breakdown');
+    // Should contain at least one model name
+    expect(breakdown.textContent).toMatch(/GPT-4o Mini/i);
+    // Should show request count
+    expect(breakdown.textContent).toMatch(/\d+ req/i);
+  });
 });

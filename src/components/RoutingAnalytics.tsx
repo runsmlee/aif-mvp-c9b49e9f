@@ -22,6 +22,28 @@ export default function RoutingAnalytics() {
       .map(([hour, counts]) => ({ hour, ...counts }));
   }, [events]);
 
+  const modelBreakdown = useMemo(() => {
+    const modelMap = new Map<string, { total: number; accepted: number; escalated: number; totalLatency: number }>();
+    events.forEach(event => {
+      const existing = modelMap.get(event.primaryModel) || { total: 0, accepted: 0, escalated: 0, totalLatency: 0 };
+      existing.total++;
+      existing.totalLatency += event.latencyMs;
+      if (event.decision === 'accepted') existing.accepted++;
+      else existing.escalated++;
+      modelMap.set(event.primaryModel, existing);
+    });
+    return Array.from(modelMap.entries())
+      .sort((a, b) => b[1].total - a[1].total)
+      .map(([model, data]) => ({
+        model,
+        total: data.total,
+        accepted: data.accepted,
+        escalated: data.escalated,
+        avgLatency: Math.round(data.totalLatency / data.total),
+        acceptRate: Math.round((data.accepted / data.total) * 100),
+      }));
+  }, [events]);
+
   if (events.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
@@ -113,6 +135,57 @@ export default function RoutingAnalytics() {
             <span className="w-2.5 h-2.5 rounded-sm bg-warning/80 inline-block" />
             Escalated
           </span>
+        </div>
+      </section>
+
+      {/* Per-Model Breakdown */}
+      <section className="bg-surface rounded-xl border border-border p-6" aria-label="Per-model breakdown" data-testid="per-model-breakdown">
+        <div className="flex items-center gap-2.5 mb-5">
+          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+            <svg className="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="2" width="20" height="8" rx="2" ry="2" />
+              <rect x="2" y="14" width="20" height="8" rx="2" ry="2" />
+              <line x1="6" y1="6" x2="6.01" y2="6" />
+              <line x1="6" y1="18" x2="6.01" y2="18" />
+            </svg>
+          </div>
+          <h2 className="text-base font-semibold text-text-primary">Per-Model Performance</h2>
+        </div>
+        <div className="grid gap-2.5">
+          {modelBreakdown.map(({ model, total, accepted, escalated, avgLatency, acceptRate }) => (
+            <div
+              key={model}
+              className="flex items-center justify-between p-3.5 bg-surface-alt/60 rounded-lg border border-border-subtle hover:border-border transition-colors duration-200"
+            >
+              <div className="flex items-center gap-3">
+                <div className={`w-2.5 h-2.5 rounded-full ${
+                  acceptRate >= 80 ? 'bg-success' : acceptRate >= 50 ? 'bg-warning' : total === 0 ? 'bg-text-muted' : 'bg-error'
+                }`} />
+                <span className="text-sm font-medium text-text-primary">{model}</span>
+                <span className="text-xs text-text-muted tabular-nums">{total} req</span>
+              </div>
+              <div className="flex items-center gap-4 text-xs">
+                {total > 0 && (
+                  <>
+                    <span className="text-text-muted tabular-nums">{avgLatency}ms avg</span>
+                    <span className="flex items-center gap-1">
+                      <span className="text-success tabular-nums">{accepted}</span>
+                      <span className="text-text-muted">/</span>
+                      <span className="text-warning tabular-nums">{escalated}</span>
+                    </span>
+                    <span className={`font-semibold tabular-nums ${
+                      acceptRate >= 80 ? 'text-success' : acceptRate >= 50 ? 'text-warning' : 'text-error'
+                    }`}>
+                      {acceptRate}%
+                    </span>
+                  </>
+                )}
+                {total === 0 && (
+                  <span className="text-text-muted">No data</span>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       </section>
     </div>
