@@ -58,6 +58,7 @@ export default function CostSimulator() {
           </div>
           <div className="flex items-end">
             <button
+              type="button"
               onClick={handleSimulate}
               className="w-full sm:w-auto px-6 py-2.5 text-sm font-medium rounded-lg bg-primary text-white hover:bg-primary-hover transition-colors duration-200 active:scale-[0.97] min-h-[44px] shadow-sm shadow-primary/20"
               aria-label="Simulate"

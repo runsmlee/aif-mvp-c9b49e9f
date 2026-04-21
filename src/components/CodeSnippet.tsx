@@ -45,6 +45,7 @@ export default function CodeSnippet() {
           <span className="text-xs text-text-muted font-mono ml-2">integration.ts</span>
         </div>
         <button
+          type="button"
           onClick={handleCopy}
           className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 min-h-[32px] inline-flex items-center gap-1.5 ${
             copied
@@ -88,20 +89,85 @@ export default function CodeSnippet() {
 }
 
 function highlightSyntax(line: string): React.ReactNode {
-  // Simple syntax highlighting
-  if (line.startsWith('import')) {
-    return <span><span className="text-purple-400">import</span> <span className="text-text-primary">{line.slice(7)}</span></span>;
+  // Simple syntax highlighting for TypeScript/JavaScript
+  const keywords = ['import', 'from', 'const', 'new', 'await'];
+  const keywordClass = 'text-purple-400';
+  const classRefClass = 'text-cyan-400';
+  const stringClass = 'text-emerald-400';
+  const funcClass = 'text-blue-400';
+
+  // Highlight string literals (single and double quoted)
+  const stringMatch = line.match(/^(.*?)(['"`])(.*?)\2(.*)$/);
+  if (stringMatch) {
+    const [, before, quote, content, after] = stringMatch;
+    return (
+      <span>
+        {highlightKeywords(before, keywords, keywordClass, classRefClass, funcClass)}
+        <span className={stringClass}>{quote}{content}{quote}</span>
+        {highlightKeywords(after, keywords, keywordClass, classRefClass, funcClass)}
+      </span>
+    );
   }
-  if (line.includes('= new')) {
-    const parts = line.split('new');
-    return <span><span className="text-text-primary">{parts[0]}</span><span className="text-blue-400">new</span><span className="text-text-primary">{parts[1]}</span></span>;
+
+  return highlightKeywords(line, keywords, keywordClass, classRefClass, funcClass);
+}
+
+function highlightKeywords(
+  text: string,
+  keywords: string[],
+  keywordClass: string,
+  classRefClass: string,
+  funcClass: string,
+): React.ReactNode {
+  if (!text) return <span>{text}</span>;
+
+  const parts: React.ReactNode[] = [];
+  let remaining = text;
+  let key = 0;
+
+  while (remaining.length > 0) {
+    let earliestMatch: { index: number; length: number; className: string } | null = null;
+
+    // Check for keywords
+    for (const kw of keywords) {
+      const regex = new RegExp(`\\b${kw}\\b`);
+      const match = remaining.match(regex);
+      if (match && match.index !== undefined) {
+        if (!earliestMatch || match.index < earliestMatch.index) {
+          earliestMatch = { index: match.index, length: kw.length, className: keywordClass };
+        }
+      }
+    }
+
+    // Check for known class references
+    const classMatch = remaining.match(/\b(LogRoute|console)\b/);
+    if (classMatch && classMatch.index !== undefined) {
+      if (!earliestMatch || classMatch.index < earliestMatch.index) {
+        earliestMatch = {
+          index: classMatch.index,
+          length: classMatch[0].length,
+          className: classMatch[0] === 'console' ? funcClass : classRefClass,
+        };
+      }
+    }
+
+    if (!earliestMatch || earliestMatch.index === -1) {
+      parts.push(<span key={key++}>{remaining}</span>);
+      break;
+    }
+
+    if (earliestMatch.index > 0) {
+      parts.push(<span key={key++}>{remaining.slice(0, earliestMatch.index)}</span>);
+    }
+
+    parts.push(
+      <span key={key++} className={earliestMatch.className}>
+        {remaining.slice(earliestMatch.index, earliestMatch.index + earliestMatch.length)}
+      </span>
+    );
+
+    remaining = remaining.slice(earliestMatch.index + earliestMatch.length);
   }
-  if (line.includes('await')) {
-    const parts = line.split('await');
-    return <span><span className="text-text-primary">{parts[0]}</span><span className="text-purple-400">await</span><span className="text-text-primary">{parts[1]}</span></span>;
-  }
-  if (line.includes('console')) {
-    return <span className="text-green-400">{line}</span>;
-  }
-  return <span>{line}</span>;
+
+  return <span>{parts}</span>;
 }

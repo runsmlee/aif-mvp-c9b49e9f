@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useRouting } from '../context/RoutingContext';
 import { AVAILABLE_MODELS } from '../data/mockData';
 import type { FallbackEntry, Model } from '../types';
@@ -7,6 +7,31 @@ export default function FallbackChain() {
   const { fallbackChain, setFallbackChain, showToast } = useRouting();
   const [showDropdown, setShowDropdown] = useState(false);
   const [confirmRemove, setConfirmRemove] = useState<string | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on click outside or Escape key
+  useEffect(() => {
+    if (!showDropdown) return;
+
+    function handleClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
+      }
+    }
+
+    function handleEscape(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        setShowDropdown(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [showDropdown]);
 
   const addModel = useCallback((model: Model) => {
     const entry: FallbackEntry = {
@@ -63,6 +88,7 @@ export default function FallbackChain() {
           </div>
           {fallbackChain.length > 0 && (
             <button
+              type="button"
               onClick={handleSave}
               className="px-4 py-2.5 text-sm font-medium rounded-lg bg-primary text-white hover:bg-primary-hover transition-colors duration-200 active:scale-[0.97] shadow-sm shadow-primary/20 min-h-[44px]"
               aria-label="Save chain"
@@ -106,6 +132,7 @@ export default function FallbackChain() {
 
               <div className="flex items-center gap-0.5">
                 <button
+                  type="button"
                   onClick={() => moveEntry(index, 'up')}
                   disabled={index === 0}
                   className="p-2 text-text-muted hover:text-text-primary hover:bg-surface-elevated rounded-md disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent transition-all duration-150 min-w-[32px] min-h-[32px] flex items-center justify-center"
@@ -117,6 +144,7 @@ export default function FallbackChain() {
                   </svg>
                 </button>
                 <button
+                  type="button"
                   onClick={() => moveEntry(index, 'down')}
                   disabled={index === fallbackChain.length - 1}
                   className="p-2 text-text-muted hover:text-text-primary hover:bg-surface-elevated rounded-md disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent transition-all duration-150 min-w-[32px] min-h-[32px] flex items-center justify-center"
@@ -129,6 +157,7 @@ export default function FallbackChain() {
                 </button>
                 {confirmRemove === entry.id ? (
                   <button
+                    type="button"
                     onClick={() => removeModel(entry.id)}
                     className="px-3 py-1.5 text-xs font-semibold text-error hover:bg-error/10 rounded-md transition-colors duration-150 min-h-[32px]"
                     aria-label="Confirm remove"
@@ -137,6 +166,7 @@ export default function FallbackChain() {
                   </button>
                 ) : (
                   <button
+                    type="button"
                     onClick={() => setConfirmRemove(entry.id)}
                     className="p-2 text-text-muted hover:text-error hover:bg-error/10 rounded-md transition-all duration-150 min-w-[32px] min-h-[32px] flex items-center justify-center"
                     aria-label="Remove"
@@ -153,8 +183,9 @@ export default function FallbackChain() {
         </div>
 
         {/* Add Model */}
-        <div className="relative">
+        <div className="relative" ref={dropdownRef}>
           <button
+            type="button"
             onClick={() => setShowDropdown(!showDropdown)}
             disabled={availableModels.length === 0}
             className="w-full px-4 py-2.5 text-sm font-medium rounded-lg border border-dashed border-border text-text-secondary hover:border-primary/50 hover:text-primary hover:bg-primary/5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-border disabled:hover:text-text-secondary disabled:hover:bg-transparent min-h-[44px]"
@@ -178,6 +209,7 @@ export default function FallbackChain() {
             >
               {availableModels.map(model => (
                 <button
+                  type="button"
                   key={model.id}
                   onClick={() => addModel(model)}
                   className="w-full text-left px-4 py-2.5 text-sm text-text-primary hover:bg-surface-elevated transition-colors duration-150 first:rounded-t-lg last:rounded-b-lg border-b border-border-subtle last:border-0"

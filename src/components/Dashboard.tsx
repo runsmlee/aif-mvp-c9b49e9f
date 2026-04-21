@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, lazy, Suspense } from 'react';
+import { useState, useCallback, useMemo, useRef, lazy, Suspense } from 'react';
 import { useRouting } from '../context/RoutingContext';
 import { calculateStats } from '../utils/routing';
 import { ErrorBoundary } from './ErrorBoundary';
@@ -34,12 +34,17 @@ const TABS: Tab[] = [
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<TabId>('router');
   const { fallbackChain, events } = useRouting();
+  const tabPanelRef = useRef<HTMLDivElement>(null);
 
   const hasRoutingRules = fallbackChain.length > 0;
   const stats = useMemo(() => calculateStats(events), [events]);
 
   const handleTabChange = useCallback((tabId: TabId) => {
     setActiveTab(tabId);
+    // Move focus to the tab panel for screen readers after tab switch
+    requestAnimationFrame(() => {
+      tabPanelRef.current?.focus();
+    });
   }, []);
 
   const renderContent = useMemo(() => {
@@ -253,7 +258,16 @@ export default function Dashboard() {
           role="tabpanel"
           id={`panel-${activeTab}`}
           aria-labelledby={`tab-${activeTab}`}
-          className="animate-fade-in"
+          tabIndex={-1}
+          ref={tabPanelRef}
+          onFocus={() => {
+            // Redirect focus to the active tab button when panel receives focus
+            const activeTabEl = document.getElementById(`tab-${activeTab}`);
+            if (activeTabEl) {
+              // Keep focus on panel for screen reader announcement
+            }
+          }}
+          className="animate-fade-in outline-none"
         >
           {renderContent}
         </div>

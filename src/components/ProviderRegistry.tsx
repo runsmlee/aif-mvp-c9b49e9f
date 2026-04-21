@@ -105,6 +105,7 @@ export default function ProviderRegistry() {
               <div className="flex items-center gap-2">
                 {provider.status !== 'connected' && (
                   <button
+                    type="button"
                     onClick={() => addProvider(provider.id)}
                     className="px-3 py-1.5 text-xs font-medium rounded-lg bg-surface-elevated text-text-primary hover:bg-primary hover:text-white transition-colors duration-200 min-h-[32px] border border-border-subtle"
                     aria-label="Add Provider"
@@ -114,6 +115,7 @@ export default function ProviderRegistry() {
                 )}
                 {provider.status === 'connected' && (
                   <button
+                    type="button"
                     onClick={() => setConfirmRemove(provider.id)}
                     className="px-3 py-1.5 text-xs font-medium rounded-lg text-error hover:bg-error/10 transition-colors duration-200 min-h-[32px]"
                     aria-label="Remove Provider"
@@ -141,6 +143,7 @@ export default function ProviderRegistry() {
                     aria-label="API key"
                   />
                   <button
+                    type="button"
                     onClick={() => saveApiKey(provider.id)}
                     className="px-4 py-2 text-xs font-medium rounded-lg bg-primary text-white hover:bg-primary-hover transition-colors duration-200 min-h-[44px] shadow-sm shadow-primary/20"
                     aria-label="Test Connection"
@@ -171,12 +174,14 @@ export default function ProviderRegistry() {
                 </p>
                 <div className="flex gap-2">
                   <button
+                    type="button"
                     onClick={() => removeProvider(provider.id)}
                     className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-error text-white hover:bg-error/90 transition-colors duration-150 min-h-[32px]"
                   >
                     Yes, Remove
                   </button>
                   <button
+                    type="button"
                     onClick={() => setConfirmRemove(null)}
                     className="px-3 py-1.5 text-xs font-medium rounded-lg bg-surface-elevated text-text-primary hover:bg-surface-alt transition-colors duration-150 min-h-[32px] border border-border-subtle"
                   >

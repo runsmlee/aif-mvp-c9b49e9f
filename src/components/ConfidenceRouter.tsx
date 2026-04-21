@@ -117,6 +117,7 @@ export default function ConfidenceRouter() {
             />
           </div>
           <button
+            type="button"
             onClick={handleTestPrompt}
             disabled={isSubmitting || !testPrompt.trim()}
             className="w-full sm:w-auto px-6 py-2.5 text-sm font-medium rounded-lg bg-primary text-white hover:bg-primary-hover transition-all duration-200 active:scale-[0.97] min-h-[44px] shadow-sm shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 flex items-center justify-center gap-2"
