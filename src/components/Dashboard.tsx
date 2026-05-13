@@ -4,11 +4,10 @@ import { calculateStats } from '../utils/routing';
 import { ErrorBoundary } from './ErrorBoundary';
 import { LoadingSkeleton } from './LoadingSkeleton';
 import { ToastContainer } from './Toast';
+import { HeroStats } from './HeroStats';
 
-// Eager import only for the default tab's primary component
-import ConfidenceRouter from './ConfidenceRouter';
-
-// Lazy imports for all other sections — reduces initial bundle size
+// All sections are lazy-loaded to minimize initial bundle size
+const ConfidenceRouter = lazy(() => import('./ConfidenceRouter'));
 const RequestLogInspector = lazy(() => import('./RequestLogInspector'));
 const CostSimulator = lazy(() => import('./CostSimulator'));
 const CodeSnippet = lazy(() => import('./CodeSnippet'));
@@ -53,24 +52,7 @@ export default function Dashboard() {
         return (
           <div className="space-y-8">
             {/* Hero Summary Bar */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3" aria-label="Quick stats overview">
-              <div className="bg-surface rounded-xl border border-border-subtle p-4 hover:border-border transition-colors duration-200">
-                <p className="text-xs text-text-muted uppercase tracking-wider font-medium mb-1">Requests</p>
-                <p className="text-xl font-bold text-text-primary tabular-nums">{stats.totalRequests}</p>
-              </div>
-              <div className="bg-surface rounded-xl border border-border-subtle p-4 hover:border-border transition-colors duration-200">
-                <p className="text-xs text-text-muted uppercase tracking-wider font-medium mb-1">Escalated</p>
-                <p className="text-xl font-bold text-warning tabular-nums">{stats.escalations}</p>
-              </div>
-              <div className="bg-surface rounded-xl border border-border-subtle p-4 hover:border-border transition-colors duration-200">
-                <p className="text-xs text-text-muted uppercase tracking-wider font-medium mb-1">Avg Latency</p>
-                <p className="text-xl font-bold text-text-primary tabular-nums">{stats.avgLatencyMs}ms</p>
-              </div>
-              <div className="bg-surface rounded-xl border border-success/20 p-4 hover:border-success/30 transition-colors duration-200">
-                <p className="text-xs text-text-muted uppercase tracking-wider font-medium mb-1">Saved</p>
-                <p className="text-xl font-bold text-success tabular-nums">${stats.costSavingsUsd.toFixed(2)}</p>
-              </div>
-            </div>
+            <HeroStats stats={stats} />
 
             {!hasRoutingRules && (
               <div className="bg-surface rounded-xl border border-dashed border-border p-6 text-center">
@@ -126,7 +108,9 @@ export default function Dashboard() {
               </div>
             </section>
             <ErrorBoundary>
-              <ConfidenceRouter />
+              <Suspense fallback={<LoadingSkeleton />}>
+                <ConfidenceRouter />
+              </Suspense>
             </ErrorBoundary>
             <ErrorBoundary>
               <Suspense fallback={<LoadingSkeleton />}>
@@ -251,6 +235,11 @@ export default function Dashboard() {
           </div>
         </div>
       </nav>
+
+      {/* Screen reader live region for tab changes */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {TABS.find(t => t.id === activeTab)?.label ?? ''} tab selected
+      </div>
 
       {/* Content */}
       <main id="main-content" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

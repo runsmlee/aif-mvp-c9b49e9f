@@ -7,6 +7,15 @@ function renderWithProvider(ui: React.ReactElement) {
   return render(<RoutingProvider>{ui}</RoutingProvider>);
 }
 
+// Context override that provides empty events for empty state testing
+function renderWithEmptyEvents(ui: React.ReactElement) {
+  return render(
+    <RoutingProvider initialEvents={[]}>
+      {ui}
+    </RoutingProvider>
+  );
+}
+
 describe('RoutingAnalytics', () => {
   it('renders analytics overview cards (Total Requests, Escalations, Avg Latency, Cost Savings)', () => {
     renderWithProvider(<RoutingAnalytics />);
@@ -64,5 +73,19 @@ describe('RoutingAnalytics', () => {
     expect(breakdown.textContent).toMatch(/GPT-4o Mini/i);
     // Should show request count
     expect(breakdown.textContent).toMatch(/\d+ req/i);
+  });
+
+  describe('Empty state', () => {
+    it('shows "No routing data yet" message when events are empty', () => {
+      renderWithEmptyEvents(<RoutingAnalytics />);
+      expect(screen.getByText(/no routing data yet/i)).toBeInTheDocument();
+      expect(screen.getByText(/start sending requests to see analytics/i)).toBeInTheDocument();
+    });
+
+    it('does not render analytics cards or chart in empty state', () => {
+      renderWithEmptyEvents(<RoutingAnalytics />);
+      expect(screen.queryByTestId('analytics-cards')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('request-chart')).not.toBeInTheDocument();
+    });
   });
 });

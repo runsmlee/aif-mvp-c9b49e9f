@@ -16,8 +16,8 @@ interface RoutingContextType {
 
 const RoutingContext = createContext<RoutingContextType | null>(null);
 
-export function RoutingProvider({ children }: { children: ReactNode }) {
-  const [events, setEvents] = useState<RoutingEvent[]>(MOCK_ROUTING_EVENTS);
+export function RoutingProvider({ children, initialEvents }: { children: ReactNode; initialEvents?: RoutingEvent[] }) {
+  const [events, setEvents] = useState<RoutingEvent[]>(initialEvents ?? MOCK_ROUTING_EVENTS);
   const [fallbackChain, setFallbackChain] = useState<FallbackEntry[]>([]);
   const [threshold, setThreshold] = useState(0.7);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
