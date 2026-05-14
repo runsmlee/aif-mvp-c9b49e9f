@@ -19,10 +19,19 @@ export default function RequestLogInspector() {
     return Array.from(models);
   }, [events]);
 
+  const summaryCounts = useMemo(() => {
+    const accepted = filteredEvents.filter(e => e.decision === 'accepted').length;
+    const escalated = filteredEvents.filter(e => e.decision === 'escalated').length;
+    const avgLatency = filteredEvents.length > 0
+      ? Math.round(filteredEvents.reduce((sum, e) => sum + e.latencyMs, 0) / filteredEvents.length)
+      : 0;
+    return { accepted, escalated, total: filteredEvents.length, avgLatency };
+  }, [filteredEvents]);
+
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <section className="bg-surface rounded-xl border border-border-subtle p-4" aria-label="Request log filters">
+      <section className="bg-surface rounded-xl border border-border p-5" aria-label="Request log filters">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1">
             <label htmlFor="model-filter" className="block text-xs text-text-muted mb-1.5 font-medium">
@@ -61,6 +70,24 @@ export default function RequestLogInspector() {
             </select>
           </div>
         </div>
+
+        {/* Mini summary bar */}
+        {filteredEvents.length > 0 && (
+          <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border-subtle text-xs">
+            <span className="text-text-muted">
+              Showing <span className="font-semibold text-text-primary tabular-nums">{summaryCounts.total}</span> of {events.length}
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-success" />
+              <span className="text-success tabular-nums">{summaryCounts.accepted}</span>
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-warning" />
+              <span className="text-warning tabular-nums">{summaryCounts.escalated}</span>
+            </span>
+            <span className="text-text-muted ml-auto tabular-nums">{summaryCounts.avgLatency}ms avg</span>
+          </div>
+        )}
       </section>
 
       {/* Desktop Table View */}
@@ -152,11 +179,6 @@ export default function RequestLogInspector() {
             </tbody>
           </table>
         </div>
-        {filteredEvents.length > 0 && (
-          <div className="px-4 py-2.5 bg-surface-alt/30 border-t border-border-subtle text-xs text-text-muted tabular-nums">
-            Showing {filteredEvents.length} of {events.length} requests
-          </div>
-        )}
       </section>
 
       {/* Mobile Card View */}
@@ -211,11 +233,6 @@ export default function RequestLogInspector() {
               </div>
             </div>
           ))
-        )}
-        {filteredEvents.length > 0 && (
-          <p className="text-xs text-text-muted text-center py-1 tabular-nums">
-            Showing {filteredEvents.length} of {events.length}
-          </p>
         )}
       </section>
     </div>

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { generateCostSimulation } from '../data/mockData';
 import type { CostSimulationResult } from '../types';
 
@@ -7,7 +7,6 @@ export default function CostSimulator() {
   const [results, setResults] = useState<CostSimulationResult[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Auto-run simulation on mount with default volume
   useEffect(() => {
     setResults(generateCostSimulation(10000));
   }, []);
@@ -22,6 +21,11 @@ export default function CostSimulator() {
     setError(null);
     setResults(generateCostSimulation(numVolume));
   }, [volume]);
+
+  const maxCost = useMemo(() => {
+    if (!results) return 0;
+    return Math.max(...results.map(r => r.totalCost));
+  }, [results]);
 
   return (
     <div className="space-y-6">
@@ -77,17 +81,66 @@ export default function CostSimulator() {
         )}
       </section>
 
-      {/* Results Table */}
+      {/* Results */}
       {results && (
         <section className="bg-surface rounded-xl border border-border p-6 animate-fade-in" aria-label="Simulation results">
-          <div className="flex items-center gap-2.5 mb-5">
+          <div className="flex items-center gap-2.5 mb-6">
             <div className="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center">
               <svg className="w-4 h-4 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
               </svg>
             </div>
-            <h2 className="text-base font-semibold text-text-primary">Strategy Comparison</h2>
+            <div>
+              <h2 className="text-base font-semibold text-text-primary">Strategy Comparison</h2>
+              <p className="text-xs text-text-muted">Visual cost comparison across routing strategies</p>
+            </div>
           </div>
+
+          {/* Visual Cost Bars */}
+          <div className="space-y-3 mb-6">
+            {results.map(result => {
+              const barWidth = maxCost > 0 ? (result.totalCost / maxCost) * 100 : 0;
+              const isRecommended = result.strategy === 'Confidence-Routed';
+              const barColor = isRecommended
+                ? 'bg-success/70'
+                : result.strategy === 'Always Best (Frontier)'
+                  ? 'bg-error/50'
+                  : 'bg-text-muted/40';
+
+              return (
+                <div key={`bar-${result.strategy}`}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-mono text-text-secondary tabular-nums">
+                      ${result.totalCost.toLocaleString()}
+                    </span>
+                    {isRecommended && (
+                      <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-semibold bg-success/15 text-success rounded-full border border-success/20">
+                        Best Value
+                      </span>
+                    )}
+                  </div>
+                  <div className="h-2.5 bg-surface-elevated rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-700 ease-out ${barColor}`}
+                      style={{ width: `${barWidth}%` }}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between mt-1 text-[11px] text-text-muted">
+                    <span>Quality: <span className="font-mono text-text-secondary">{result.avgQualityScore.toFixed(2)}</span></span>
+                    <span data-testid={`savings-${result.strategy.toLowerCase().replace(/\s+/g, '-')}`}>
+                      {result.savingsPercent > 0 ? (
+                        <span className="text-success font-semibold">Saves {result.savingsPercent}%</span>
+                      ) : (
+                        <span>Baseline</span>
+                      )}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Table */}
           <div className="overflow-x-auto">
             <table className="w-full text-sm" role="table">
               <thead>
@@ -123,9 +176,9 @@ export default function CostSimulator() {
                     <td className="py-3.5 px-4 text-right font-mono text-text-secondary tabular-nums">
                       {result.avgQualityScore.toFixed(2)}
                     </td>
-                    <td className="py-3.5 px-4 text-right font-mono tabular-nums" data-testid={`savings-${result.strategy.toLowerCase().replace(/\s+/g, '-')}`}>
+                    <td className="py-3.5 px-4 text-right font-mono tabular-nums">
                       <span className={result.savingsPercent > 0 ? 'text-success font-semibold' : 'text-text-muted'}>
-                        {result.savingsPercent > 0 ? `${result.savingsPercent}%` : '—'}
+                        {result.savingsPercent > 0 ? `${result.savingsPercent}%` : '\u2014'}
                       </span>
                     </td>
                   </tr>

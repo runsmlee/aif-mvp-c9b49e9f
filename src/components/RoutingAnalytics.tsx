@@ -8,7 +8,6 @@ export default function RoutingAnalytics() {
   const stats = useMemo(() => calculateStats(events), [events]);
 
   const chartData = useMemo(() => {
-    // Aggregate by hour for chart bars
     const hourMap = new Map<string, { accepted: number; escalated: number }>();
     events.forEach(event => {
       const hour = event.timestamp.slice(0, 13);
@@ -22,12 +21,17 @@ export default function RoutingAnalytics() {
       .map(([hour, counts]) => ({ hour, ...counts }));
   }, [events]);
 
+  const maxRequests = useMemo(() => {
+    return Math.max(...chartData.map(d => d.accepted + d.escalated), 1);
+  }, [chartData]);
+
   const modelBreakdown = useMemo(() => {
-    const modelMap = new Map<string, { total: number; accepted: number; escalated: number; totalLatency: number }>();
+    const modelMap = new Map<string, { total: number; accepted: number; escalated: number; totalLatency: number; totalCost: number }>();
     events.forEach(event => {
-      const existing = modelMap.get(event.primaryModel) || { total: 0, accepted: 0, escalated: 0, totalLatency: 0 };
+      const existing = modelMap.get(event.primaryModel) || { total: 0, accepted: 0, escalated: 0, totalLatency: 0, totalCost: 0 };
       existing.total++;
       existing.totalLatency += event.latencyMs;
+      existing.totalCost += event.costUsd;
       if (event.decision === 'accepted') existing.accepted++;
       else existing.escalated++;
       modelMap.set(event.primaryModel, existing);
@@ -41,6 +45,7 @@ export default function RoutingAnalytics() {
         escalated: data.escalated,
         avgLatency: Math.round(data.totalLatency / data.total),
         acceptRate: Math.round((data.accepted / data.total) * 100),
+        totalCost: data.totalCost,
       }));
   }, [events]);
 
@@ -64,7 +69,7 @@ export default function RoutingAnalytics() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4" data-testid="analytics-cards" aria-label="Analytics overview">
         <StatCard
           label="Total Requests"
-          value={stats.totalRequests.toString()}
+          value={stats.totalRequests.toLocaleString()}
           subtext={`${events.length} events logged`}
           icon="request"
         />
@@ -93,96 +98,115 @@ export default function RoutingAnalytics() {
 
       {/* Request Volume Chart */}
       <section className="bg-surface rounded-xl border border-border p-6" aria-label="Request volume chart">
-        <div className="flex items-center gap-2.5 mb-5">
-          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-            <svg className="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-              <path d="M18 20V10" /><path d="M12 20V4" /><path d="M6 20v-6" />
-            </svg>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <svg className="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 20V10" /><path d="M12 20V4" /><path d="M6 20v-6" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-base font-semibold text-text-primary">Request Volume</h2>
+              <p className="text-xs text-text-muted">Accepted vs escalated over time</p>
+            </div>
           </div>
-          <h2 className="text-base font-semibold text-text-primary">Request Volume</h2>
+          <div className="flex items-center gap-4 text-xs text-text-secondary">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-sm bg-success/80 inline-block" />
+              Accepted
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-sm bg-warning/80 inline-block" />
+              Escalated
+            </span>
+          </div>
         </div>
-        <div className="flex items-end gap-1.5 h-48" data-testid="request-chart">
+        <div className="flex items-end gap-2 h-48" data-testid="request-chart">
           {chartData.map(({ hour, accepted, escalated }) => {
             const total = accepted + escalated;
-            const acceptedHeight = (accepted / total) * 100;
-            const escalatedHeight = (escalated / total) * 100;
+            const barHeight = Math.max((total / maxRequests) * 100, 8);
+            const acceptedPercent = total > 0 ? (accepted / total) * 100 : 0;
+            const escalatedPercent = total > 0 ? (escalated / total) * 100 : 0;
+
             return (
-              <div key={hour} className="flex-1 flex flex-col gap-0.5 group/bar" title={`${hour}: ${total} requests`}>
-                <div className="text-center text-[10px] text-text-muted mb-1 opacity-0 group-hover/bar:opacity-100 transition-opacity tabular-nums">{total}</div>
-                <div className="flex flex-col-reverse gap-px rounded-t overflow-hidden" style={{ height: '140px' }}>
+              <div key={hour} className="flex-1 flex flex-col items-center gap-1 group/bar" title={`${hour}: ${total} requests`}>
+                <span className="text-[10px] text-text-muted tabular-nums opacity-0 group-hover/bar:opacity-100 transition-opacity">{total}</span>
+                <div className="w-full relative" style={{ height: '140px' }}>
                   <div
-                    className="bg-success/80 hover:bg-success rounded-t transition-colors duration-150"
-                    style={{ height: `${acceptedHeight}%` }}
-                    aria-label={`${accepted} accepted`}
-                  />
-                  <div
-                    className="bg-warning/80 hover:bg-warning rounded-t transition-colors duration-150"
-                    style={{ height: `${escalatedHeight}%` }}
-                    aria-label={`${escalated} escalated`}
-                  />
+                    className="absolute bottom-0 w-full rounded-t overflow-hidden transition-all duration-300 hover:opacity-90"
+                    style={{ height: `${barHeight}%` }}
+                  >
+                    <div className="bg-success/70" style={{ height: `${acceptedPercent}%` }} />
+                    <div className="bg-warning/70" style={{ height: `${escalatedPercent}%` }} />
+                  </div>
                 </div>
-                <div className="text-center text-[9px] text-text-muted mt-1.5 truncate tabular-nums">{hour.slice(11)}</div>
+                <span className="text-[9px] text-text-muted tabular-nums mt-1 truncate max-w-full">{hour.slice(11)}</span>
               </div>
             );
           })}
-        </div>
-        <div className="flex items-center gap-5 mt-5 text-xs text-text-secondary">
-          <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-sm bg-success/80 inline-block" />
-            Accepted
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-sm bg-warning/80 inline-block" />
-            Escalated
-          </span>
         </div>
       </section>
 
       {/* Per-Model Breakdown */}
       <section className="bg-surface rounded-xl border border-border p-6" aria-label="Per-model breakdown" data-testid="per-model-breakdown">
-        <div className="flex items-center gap-2.5 mb-5">
-          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-            <svg className="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-              <rect x="2" y="2" width="20" height="8" rx="2" ry="2" />
-              <rect x="2" y="14" width="20" height="8" rx="2" ry="2" />
-              <line x1="6" y1="6" x2="6.01" y2="6" />
-              <line x1="6" y1="18" x2="6.01" y2="18" />
-            </svg>
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <svg className="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="2" width="20" height="8" rx="2" ry="2" />
+                <rect x="2" y="14" width="20" height="8" rx="2" ry="2" />
+                <line x1="6" y1="6" x2="6.01" y2="6" />
+                <line x1="6" y1="18" x2="6.01" y2="18" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-base font-semibold text-text-primary">Per-Model Performance</h2>
+              <p className="text-xs text-text-muted">Detailed breakdown by model</p>
+            </div>
           </div>
-          <h2 className="text-base font-semibold text-text-primary">Per-Model Performance</h2>
         </div>
-        <div className="grid gap-2.5">
-          {modelBreakdown.map(({ model, total, accepted, escalated, avgLatency, acceptRate }) => (
+        <div className="grid gap-3">
+          {modelBreakdown.map(({ model, total, accepted, escalated, avgLatency, acceptRate, totalCost }) => (
             <div
               key={model}
-              className="flex items-center justify-between p-3.5 bg-surface-alt/60 rounded-lg border border-border-subtle hover:border-border transition-colors duration-200"
+              className="p-4 bg-surface-alt/60 rounded-lg border border-border-subtle hover:border-border transition-colors duration-200"
             >
-              <div className="flex items-center gap-3">
-                <div className={`w-2.5 h-2.5 rounded-full ${
-                  acceptRate >= 80 ? 'bg-success' : acceptRate >= 50 ? 'bg-warning' : total === 0 ? 'bg-text-muted' : 'bg-error'
-                }`} />
-                <span className="text-sm font-medium text-text-primary">{model}</span>
-                <span className="text-xs text-text-muted tabular-nums">{total} req</span>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className={`w-3 h-3 rounded-full ${
+                    acceptRate >= 80 ? 'bg-success' : acceptRate >= 50 ? 'bg-warning' : 'bg-error'
+                  }`} />
+                  <span className="text-sm font-medium text-text-primary">{model}</span>
+                  <span className="text-xs text-text-muted tabular-nums bg-surface px-2 py-0.5 rounded-md">{total} req</span>
+                </div>
+                <div className="flex items-center gap-3 text-xs">
+                  <span className="text-text-muted tabular-nums">{avgLatency}ms avg</span>
+                  <span className="font-mono text-text-secondary tabular-nums">${totalCost.toFixed(4)}</span>
+                </div>
               </div>
-              <div className="flex items-center gap-4 text-xs">
-                {total > 0 && (
-                  <>
-                    <span className="text-text-muted tabular-nums">{avgLatency}ms avg</span>
-                    <span className="flex items-center gap-1">
-                      <span className="text-success tabular-nums">{accepted}</span>
-                      <span className="text-text-muted">/</span>
-                      <span className="text-warning tabular-nums">{escalated}</span>
-                    </span>
-                    <span className={`font-semibold tabular-nums ${
-                      acceptRate >= 80 ? 'text-success' : acceptRate >= 50 ? 'text-warning' : 'text-error'
-                    }`}>
-                      {acceptRate}%
-                    </span>
-                  </>
-                )}
-                {total === 0 && (
-                  <span className="text-text-muted">No data</span>
-                )}
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-2 bg-surface-elevated rounded-full overflow-hidden">
+                  <div className="h-full flex">
+                    <div
+                      className="bg-success/70 rounded-l-full transition-all duration-500"
+                      style={{ width: `${acceptRate}%` }}
+                    />
+                    <div
+                      className="bg-warning/70 rounded-r-full transition-all duration-500"
+                      style={{ width: `${100 - acceptRate}%` }}
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-xs min-w-[120px] justify-end">
+                  <span className="text-success tabular-nums">{accepted} OK</span>
+                  <span className="text-text-muted">/</span>
+                  <span className="text-warning tabular-nums">{escalated} esc</span>
+                  <span className={`font-bold tabular-nums min-w-[36px] text-right ${
+                    acceptRate >= 80 ? 'text-success' : acceptRate >= 50 ? 'text-warning' : 'text-error'
+                  }`}>
+                    {acceptRate}%
+                  </span>
+                </div>
               </div>
             </div>
           ))}
@@ -209,9 +233,10 @@ function StatCard({
 }) {
   const iconColor = highlight ? 'text-success' : 'text-text-muted';
   const iconBg = highlight ? 'bg-success/10' : 'bg-surface-elevated/50';
+  const borderColor = highlight ? 'border-success/20' : 'border-border-subtle hover:border-border';
 
   return (
-    <div className={`bg-surface rounded-xl border p-5 transition-colors duration-200 ${highlight ? 'border-success/20' : 'border-border-subtle hover:border-border'}`}>
+    <div className={`bg-surface rounded-xl border p-5 transition-all duration-200 ${borderColor}`}>
       <div className="flex items-center justify-between mb-3">
         <p className="text-xs text-text-muted uppercase tracking-wider font-medium">{label}</p>
         <div className={`w-7 h-7 rounded-md ${iconBg} flex items-center justify-center`}>

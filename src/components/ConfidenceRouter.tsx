@@ -16,7 +16,6 @@ export default function ConfidenceRouter() {
     if (!testPrompt.trim()) return;
     setIsSubmitting(true);
 
-    // Simulate a routing decision with mock data
     const primaryModel = AVAILABLE_MODELS[0];
     const fallbackModel = AVAILABLE_MODELS[1];
     const confidenceScore = shouldEscalate(-2.0, threshold) ? -2.0 + Math.random() * -1.5 : -0.3 + Math.random() * 0.5;
@@ -34,7 +33,6 @@ export default function ConfidenceRouter() {
       costUsd: Number(((primaryModel.costPer1kTokens * 500 / 1000) + (isEscalated ? fallbackModel.costPer1kTokens * 500 / 1000 : 0)).toFixed(4)),
     };
 
-    // Simulate network delay
     setTimeout(() => {
       addEvent(event);
       setLastResult(event);
@@ -42,6 +40,8 @@ export default function ConfidenceRouter() {
       setIsSubmitting(false);
     }, 400);
   }, [testPrompt, threshold, addEvent]);
+
+  const thresholdPercent = Math.round(threshold * 100);
 
   return (
     <div className="space-y-6">
@@ -62,31 +62,52 @@ export default function ConfidenceRouter() {
           <label htmlFor="threshold-slider" className="text-sm text-text-secondary min-w-[100px]">
             Logprob cutoff
           </label>
-          <input
-            id="threshold-slider"
-            type="range"
-            min="0"
-            max="1"
-            step="0.05"
-            value={threshold}
-            onChange={(e) => setThreshold(parseFloat(e.target.value))}
-            className="flex-1"
-            role="slider"
-            aria-valuemin={0}
-            aria-valuemax={1}
-            aria-valuenow={threshold}
-            aria-valuetext={`Threshold: ${threshold}`}
-          />
-          <span className="text-sm font-mono font-bold text-primary min-w-[48px] text-right bg-primary/10 px-2.5 py-1 rounded-md" data-testid="threshold-value">
-            {threshold}
-          </span>
+          <div className="flex-1">
+            <input
+              id="threshold-slider"
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={threshold}
+              onChange={(e) => setThreshold(parseFloat(e.target.value))}
+              className="w-full"
+              role="slider"
+              aria-valuemin={0}
+              aria-valuemax={1}
+              aria-valuenow={threshold}
+              aria-valuetext={`Threshold: ${threshold}`}
+            />
+            {/* Threshold zone markers */}
+            <div className="flex justify-between mt-1.5 text-[10px] text-text-muted tabular-nums">
+              <span>Lenient</span>
+              <span>Balanced</span>
+              <span>Strict</span>
+            </div>
+          </div>
+          <div className="flex flex-col items-center min-w-[56px]">
+            <span className="text-sm font-mono font-bold text-primary bg-primary/10 px-3 py-1.5 rounded-lg" data-testid="threshold-value">
+              {threshold}
+            </span>
+            <span className="text-[10px] text-text-muted mt-1">{thresholdPercent}%</span>
+          </div>
         </div>
-        <p className="text-xs text-text-muted mt-3 flex items-center gap-1.5">
-          <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
-          </svg>
-          Requests with avg logprob &lt; -1.5 will be escalated when threshold &ge; 0.5
-        </p>
+        <div className="mt-4 p-3 bg-surface-alt/60 rounded-lg border border-border-subtle">
+          <div className="flex items-center gap-2">
+            <div className="flex-1 h-2 bg-surface-elevated rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-success via-warning to-error rounded-full transition-all duration-300"
+                style={{ width: `${thresholdPercent}%` }}
+              />
+            </div>
+          </div>
+          <p className="text-xs text-text-muted mt-2 flex items-center gap-1.5">
+            <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
+            </svg>
+            Requests with avg logprob &lt; -1.5 will be escalated when threshold &ge; 0.5
+          </p>
+        </div>
       </section>
 
       {/* Test Prompt Submission */}
@@ -180,39 +201,65 @@ export default function ConfidenceRouter() {
             </span>
           </div>
 
-          <div className="p-4 bg-surface-alt/60 rounded-lg border border-border-subtle mb-3">
+          <div className="p-4 bg-surface-alt/60 rounded-lg border border-border-subtle mb-4">
             <p className="text-xs text-text-muted uppercase tracking-wider font-medium mb-1.5">Prompt</p>
             <p className="text-sm text-text-primary truncate">{lastResult.prompt}</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
-            <div className="flex items-center gap-2.5 p-3 bg-surface-alt/40 rounded-lg">
-              <span className="text-xs text-text-muted">Model</span>
-              <span className="text-sm font-medium text-text-primary">{lastResult.primaryModel}</span>
+          {/* Response comparison on escalation */}
+          {lastResult.fallbackModel ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+              <div className="p-3.5 bg-surface-alt/40 rounded-lg border border-warning/20 relative">
+                <div className="absolute top-2 right-2">
+                  <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-warning/15 text-warning rounded-full">
+                    Low Confidence
+                  </span>
+                </div>
+                <p className="text-xs text-text-muted uppercase tracking-wider font-medium mb-2">Original</p>
+                <p className="text-sm font-medium text-text-primary">{lastResult.primaryModel}</p>
+                <div className="mt-2 flex items-center gap-3 text-xs">
+                  <span className="flex items-center gap-1">
+                    <span className="text-text-muted">Confidence:</span>
+                    <span className="font-mono font-medium text-warning">{lastResult.confidenceScore}</span>
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="text-text-muted">Latency:</span>
+                    <span className="font-mono text-text-secondary">{lastResult.latencyMs}ms</span>
+                  </span>
+                </div>
+              </div>
+              <div className="p-3.5 bg-success/5 rounded-lg border border-success/20 relative">
+                <div className="absolute top-2 right-2">
+                  <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-success/15 text-success rounded-full">
+                    Escalated To
+                  </span>
+                </div>
+                <p className="text-xs text-text-muted uppercase tracking-wider font-medium mb-2">Fallback</p>
+                <p className="text-sm font-medium text-text-primary">{lastResult.fallbackModel}</p>
+                <div className="mt-2 flex items-center gap-2 text-xs">
+                  <span className="text-text-muted">Cost:</span>
+                  <span className="font-mono text-text-secondary">${lastResult.costUsd.toFixed(4)}</span>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-2.5 p-3 bg-surface-alt/40 rounded-lg">
-              <span className="text-xs text-text-muted">Confidence</span>
-              <span className={`text-sm font-mono font-medium ${
-                lastResult.confidenceScore < -1.5 ? 'text-warning' : 'text-success'
-              }`}>
-                {lastResult.confidenceScore}
-              </span>
-            </div>
-            <div className="flex items-center gap-2.5 p-3 bg-surface-alt/40 rounded-lg">
-              <span className="text-xs text-text-muted">Latency</span>
-              <span className="text-sm font-mono text-text-secondary">{lastResult.latencyMs}ms</span>
-            </div>
-          </div>
-
-          {lastResult.fallbackModel && (
-            <div className="flex items-center gap-3 p-3 bg-warning/5 rounded-lg border border-warning/10">
-              <svg className="w-4 h-4 text-warning flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
-              <span className="text-sm text-text-secondary">
-                Escalated to <span className="font-medium text-text-primary">{lastResult.fallbackModel}</span>
-              </span>
-              <span className="text-xs font-mono text-text-muted ml-auto">${lastResult.costUsd.toFixed(4)}</span>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+              <div className="flex items-center gap-2.5 p-3 bg-surface-alt/40 rounded-lg">
+                <span className="text-xs text-text-muted">Model</span>
+                <span className="text-sm font-medium text-text-primary">{lastResult.primaryModel}</span>
+              </div>
+              <div className="flex items-center gap-2.5 p-3 bg-surface-alt/40 rounded-lg">
+                <span className="text-xs text-text-muted">Confidence</span>
+                <span className={`text-sm font-mono font-medium ${
+                  lastResult.confidenceScore < -1.5 ? 'text-warning' : 'text-success'
+                }`}>
+                  {lastResult.confidenceScore}
+                </span>
+              </div>
+              <div className="flex items-center gap-2.5 p-3 bg-surface-alt/40 rounded-lg">
+                <span className="text-xs text-text-muted">Latency</span>
+                <span className="text-sm font-mono text-text-secondary">{lastResult.latencyMs}ms</span>
+              </div>
             </div>
           )}
         </section>
@@ -231,7 +278,7 @@ export default function ConfidenceRouter() {
             <p className="text-xs text-text-muted mt-0.5">Acceptance rate across active models</p>
           </div>
         </div>
-        <div className="grid gap-3">
+        <div className="grid gap-2.5">
           {AVAILABLE_MODELS.map(model => {
             const modelEvents = events.filter(e => e.primaryModel === model.name);
             const escalations = modelEvents.filter(e => e.decision === 'escalated').length;
@@ -243,7 +290,7 @@ export default function ConfidenceRouter() {
             return (
               <div
                 key={model.id}
-                className="flex items-center justify-between p-4 bg-surface-alt/60 rounded-lg border border-border-subtle hover:border-border transition-colors duration-200 group"
+                className="flex items-center justify-between p-3.5 bg-surface-alt/60 rounded-lg border border-border-subtle hover:border-border transition-colors duration-200 group"
               >
                 <div className="flex items-center gap-3">
                   <div
@@ -255,26 +302,35 @@ export default function ConfidenceRouter() {
                   <div>
                     <span className="font-medium text-text-primary text-sm">{model.name}</span>
                     <span className="text-xs text-text-muted ml-2">{model.provider}</span>
-                    <span className="hidden sm:inline text-xs text-text-muted ml-2">
-                      &middot; ${model.costPer1kTokens}/1k tokens
-                    </span>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
-                  <span className="text-text-secondary text-xs tabular-nums">{modelEvents.length} req</span>
-                  {modelEvents.length > 0 && (
+                  {modelEvents.length > 0 ? (
                     <>
-                      <span className={`text-xs font-semibold tabular-nums ${acceptanceRate >= 80 ? 'text-success' : acceptanceRate >= 50 ? 'text-warning' : 'text-error'}`}>
-                        {acceptanceRate}%
-                      </span>
+                      <span className="text-text-secondary text-xs tabular-nums">{modelEvents.length} req</span>
+                      {/* Acceptance rate bar */}
+                      <div className="hidden sm:flex items-center gap-1.5 w-24">
+                        <div className="flex-1 h-1.5 bg-surface-elevated rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-500 ${
+                              acceptanceRate >= 80 ? 'bg-success' : acceptanceRate >= 50 ? 'bg-warning' : 'bg-error'
+                            }`}
+                            style={{ width: `${acceptanceRate}%` }}
+                          />
+                        </div>
+                        <span className={`text-[11px] font-semibold tabular-nums min-w-[32px] text-right ${
+                          acceptanceRate >= 80 ? 'text-success' : acceptanceRate >= 50 ? 'text-warning' : 'text-error'
+                        }`}>
+                          {acceptanceRate}%
+                        </span>
+                      </div>
                       {escalations > 0 && (
                         <span className="px-2 py-0.5 text-xs font-medium bg-warning/15 text-warning rounded-full border border-warning/20">
                           {escalations} esc
                         </span>
                       )}
                     </>
-                  )}
-                  {modelEvents.length === 0 && (
+                  ) : (
                     <span className="text-xs text-text-muted">No data</span>
                   )}
                 </div>
@@ -303,16 +359,16 @@ export default function ConfidenceRouter() {
               {escalationEvents.length}
             </span>
           </div>
-          <div className="grid gap-3">
+          <div className="grid gap-2.5">
             {escalationEvents.slice(0, 5).map(event => (
               <div
                 key={event.id}
-                className="p-4 bg-surface-alt/60 rounded-lg border border-border-subtle hover:border-border transition-colors duration-200"
+                className="p-3.5 bg-surface-alt/60 rounded-lg border border-border-subtle hover:border-border transition-colors duration-200"
               >
-                <div className="flex items-center justify-between mb-2.5">
+                <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-text-primary">{event.primaryModel}</span>
-                    <svg className="w-3.5 h-3.5 text-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                    <svg className="w-3.5 h-3.5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="9 18 15 12 9 6" />
                     </svg>
                     <span className="text-sm font-medium text-primary">{event.fallbackModel}</span>
@@ -336,7 +392,7 @@ export default function ConfidenceRouter() {
                     <span className="font-mono text-text-secondary">{event.latencyMs}ms</span>
                   </div>
                 </div>
-                <p className="text-xs text-text-muted mt-2.5 truncate border-t border-border-subtle pt-2.5">
+                <p className="text-xs text-text-muted mt-2 truncate border-t border-border-subtle pt-2">
                   {event.prompt}
                 </p>
               </div>

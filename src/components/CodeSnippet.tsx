@@ -15,7 +15,6 @@ export default function CodeSnippet() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Fallback for environments without clipboard API
       const textarea = document.createElement('textarea');
       textarea.value = CODE_SNIPPET;
       document.body.appendChild(textarea);
@@ -76,7 +75,7 @@ export default function CodeSnippet() {
         data-testid="code-content"
       >
         {lines.map((line, i) => (
-          <div key={i} className="flex hover:bg-white/[0.02] -mx-4 px-4">
+          <div key={i} className="flex hover:bg-white/[0.02] -mx-4 px-4 transition-colors duration-100">
             <span className="w-8 text-right mr-4 text-text-muted/40 select-none tabular-nums">{i + 1}</span>
             <span className="text-gray-300">
               {highlightSyntax(line)}
@@ -84,19 +83,26 @@ export default function CodeSnippet() {
           </div>
         ))}
       </div>
+      {/* Usage hint */}
+      <div className="px-4 py-2.5 bg-surface-alt/30 border-t border-border-subtle flex items-center gap-2">
+        <svg className="w-3.5 h-3.5 text-text-muted flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
+        </svg>
+        <p className="text-[11px] text-text-muted">
+          Replace <code className="px-1 py-0.5 bg-surface-elevated rounded text-text-secondary font-mono">process.env.LR_KEY</code> with your LogRoute API key
+        </p>
+      </div>
     </div>
   );
 }
 
 function highlightSyntax(line: string): React.ReactNode {
-  // Simple syntax highlighting for TypeScript/JavaScript
   const keywords = ['import', 'from', 'const', 'new', 'await'];
   const keywordClass = 'text-purple-400';
   const classRefClass = 'text-cyan-400';
   const stringClass = 'text-emerald-400';
   const funcClass = 'text-blue-400';
 
-  // Highlight string literals (single and double quoted)
   const stringMatch = line.match(/^(.*?)(['"`])(.*?)\2(.*)$/);
   if (stringMatch) {
     const [, before, quote, content, after] = stringMatch;
@@ -128,7 +134,6 @@ function highlightKeywords(
   while (remaining.length > 0) {
     let earliestMatch: { index: number; length: number; className: string } | null = null;
 
-    // Check for keywords
     for (const kw of keywords) {
       const regex = new RegExp(`\\b${kw}\\b`);
       const match = remaining.match(regex);
@@ -139,7 +144,6 @@ function highlightKeywords(
       }
     }
 
-    // Check for known class references
     const classMatch = remaining.match(/\b(LogRoute|console)\b/);
     if (classMatch && classMatch.index !== undefined) {
       if (!earliestMatch || classMatch.index < earliestMatch.index) {

@@ -9,7 +9,6 @@ export default function FallbackChain() {
   const [confirmRemove, setConfirmRemove] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown on click outside or Escape key
   useEffect(() => {
     if (!showDropdown) return;
 
@@ -87,14 +86,20 @@ export default function FallbackChain() {
             </div>
           </div>
           {fallbackChain.length > 0 && (
-            <button
-              type="button"
-              onClick={handleSave}
-              className="px-4 py-2.5 text-sm font-medium rounded-lg bg-primary text-white hover:bg-primary-hover transition-colors duration-200 active:scale-[0.97] shadow-sm shadow-primary/20 min-h-[44px]"
-              aria-label="Save chain"
-            >
-              Save Chain
-            </button>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-text-muted bg-surface-alt px-2.5 py-1 rounded-md border border-border-subtle tabular-nums">
+                {fallbackChain.length} model{fallbackChain.length !== 1 ? 's' : ''}
+              </span>
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={fallbackChain.length < 3}
+                className="px-4 py-2.5 text-sm font-medium rounded-lg bg-primary text-white hover:bg-primary-hover transition-colors duration-200 active:scale-[0.97] shadow-sm shadow-primary/20 min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Save chain"
+              >
+                Save Chain
+              </button>
+            </div>
           )}
         </div>
 
@@ -115,11 +120,11 @@ export default function FallbackChain() {
           {fallbackChain.map((entry, index) => (
             <div
               key={entry.id}
-              className="flex items-center justify-between p-3.5 bg-surface-alt/60 rounded-lg border border-border-subtle hover:border-border transition-colors duration-200 group"
+              className="flex items-center justify-between p-3.5 bg-surface-alt/60 rounded-lg border border-border-subtle hover:border-border transition-all duration-200 group"
               role="listitem"
             >
               <div className="flex items-center gap-3">
-                <span className="flex items-center justify-center w-7 h-7 text-xs font-mono font-bold text-text-muted bg-surface rounded-md border border-border-subtle">
+                <span className="flex items-center justify-center w-7 h-7 text-xs font-mono font-bold text-text-muted bg-surface rounded-md border border-border-subtle group-hover:border-primary/30 transition-colors duration-200">
                   {index + 1}
                 </span>
                 <div>
@@ -128,6 +133,12 @@ export default function FallbackChain() {
                     when {entry.conditionType} &lt; {entry.conditionValue}
                   </span>
                 </div>
+                {/* Connection line between entries */}
+                {index < fallbackChain.length - 1 && (
+                  <span className="hidden sm:inline text-text-muted/40 text-xs ml-2">
+                    &rarr;
+                  </span>
+                )}
               </div>
 
               <div className="flex items-center gap-0.5">
@@ -212,17 +223,34 @@ export default function FallbackChain() {
                   type="button"
                   key={model.id}
                   onClick={() => addModel(model)}
-                  className="w-full text-left px-4 py-2.5 text-sm text-text-primary hover:bg-surface-elevated transition-colors duration-150 first:rounded-t-lg last:rounded-b-lg border-b border-border-subtle last:border-0"
+                  className="w-full text-left px-4 py-2.5 text-sm text-text-primary hover:bg-surface-elevated transition-colors duration-150 first:rounded-t-lg last:rounded-b-lg border-b border-border-subtle last:border-0 flex items-center justify-between"
                   role="option"
                   aria-selected={false}
                 >
-                  <span className="font-medium">{model.name}</span>
-                  <span className="text-text-muted ml-2 text-xs">({model.provider})</span>
+                  <span>
+                    <span className="font-medium">{model.name}</span>
+                    <span className="text-text-muted ml-2 text-xs">({model.provider})</span>
+                  </span>
+                  <span className="text-xs text-text-muted font-mono">${model.costPer1kTokens}/1k</span>
                 </button>
               ))}
             </div>
           )}
         </div>
+
+        {/* Chain recommendation */}
+        {fallbackChain.length > 0 && fallbackChain.length < 3 && (
+          <div className="mt-4 p-3 bg-warning/5 border border-warning/10 rounded-lg flex items-start gap-2">
+            <svg className="w-4 h-4 text-warning flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+            <div>
+              <p className="text-xs font-medium text-warning">Recommended: Add at least 3 models</p>
+              <p className="text-xs text-text-muted mt-0.5">More fallback options provide better resilience and cost optimization.</p>
+            </div>
+          </div>
+        )}
       </section>
     </div>
   );

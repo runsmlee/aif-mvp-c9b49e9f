@@ -17,12 +17,10 @@ export default function ProviderRegistry() {
   }, []);
 
   const testConnection = useCallback((providerId: string) => {
-    // Mark as testing
     setProviders(prev =>
       prev.map(p => p.id === providerId ? { ...p, status: 'testing' as const } : p)
     );
 
-    // Simulate connection test
     setTimeout(() => {
       setProviders(prev =>
         prev.map(p =>
@@ -57,27 +55,34 @@ export default function ProviderRegistry() {
     setConfirmRemove(null);
   }, [setProviders]);
 
+  const connectedCount = providers.filter(p => p.status === 'connected').length;
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2.5 mb-2">
-        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-          <svg className="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-            <rect x="2" y="2" width="20" height="8" rx="2" ry="2" /><rect x="2" y="14" width="20" height="8" rx="2" ry="2" /><line x1="6" y1="6" x2="6.01" y2="6" /><line x1="6" y1="18" x2="6.01" y2="18" />
-          </svg>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+            <svg className="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="2" width="20" height="8" rx="2" ry="2" /><rect x="2" y="14" width="20" height="8" rx="2" ry="2" /><line x1="6" y1="6" x2="6.01" y2="6" /><line x1="6" y1="18" x2="6.01" y2="18" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-base font-semibold text-text-primary">Model Providers</h2>
+            <p className="text-xs text-text-muted mt-0.5">
+              Manage your LLM provider connections and API keys
+            </p>
+          </div>
         </div>
-        <div>
-          <h2 className="text-base font-semibold text-text-primary">Model Providers</h2>
-          <p className="text-xs text-text-muted mt-0.5">
-            Manage your LLM provider connections and API keys
-          </p>
-        </div>
+        <span className="text-xs text-text-muted bg-surface-alt px-3 py-1.5 rounded-full border border-border-subtle">
+          <span className="text-success font-semibold">{connectedCount}</span> / {providers.length} connected
+        </span>
       </div>
 
       <div className="grid gap-4">
         {providers.map(provider => (
           <div
             key={provider.id}
-            className={`bg-surface rounded-xl border p-5 transition-colors duration-200 ${
+            className={`bg-surface rounded-xl border p-5 transition-all duration-200 ${
               provider.status === 'connected' ? 'border-success/20' : 'border-border-subtle hover:border-border'
             }`}
           >
@@ -100,6 +105,11 @@ export default function ProviderRegistry() {
                 <span className="text-xs text-text-muted bg-surface-alt px-2 py-0.5 rounded-md tabular-nums">
                   {provider.models.length} models
                 </span>
+                {provider.status === 'connected' && (
+                  <span className="text-[10px] font-semibold text-success bg-success/10 px-2 py-0.5 rounded-full border border-success/20">
+                    Connected
+                  </span>
+                )}
               </div>
 
               <div className="flex items-center gap-2">
@@ -128,7 +138,7 @@ export default function ProviderRegistry() {
 
             {/* API Key Form */}
             {editingProvider === provider.id && (
-              <div className="mt-0 pt-4 border-t border-border-subtle animate-fade-in">
+              <div className="pt-4 border-t border-border-subtle animate-fade-in">
                 <label htmlFor={`api-key-${provider.id}`} className="block text-xs text-text-muted mb-2 font-medium">
                   API Key
                 </label>
