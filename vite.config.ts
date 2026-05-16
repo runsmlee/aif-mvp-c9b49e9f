@@ -10,6 +10,17 @@ export default defineConfig({
   resolve: {
     dedupe: ['react', 'react-dom'],
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
+            return 'react-vendor';
+          }
+        },
+      },
+    },
+  },
   define: {
     'process.env.NODE_ENV': '"development"',
   },
