@@ -48,4 +48,26 @@ describe('Dashboard', () => {
     const steps = quickStart.querySelectorAll('[data-testid^="quick-step-"]');
     expect(steps.length).toBeGreaterThanOrEqual(3);
   });
+
+  // --- Improvement tests: Mobile navigation ---
+  it('renders mobile bottom navigation with all tabs', () => {
+    renderWithProvider(<Dashboard />);
+    const mobileNav = screen.getByLabelText(/mobile navigation/i);
+    expect(mobileNav).toBeInTheDocument();
+    // All four tabs should have mobile buttons
+    expect(screen.getAllByRole('button', { name: /^router$/i }).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByRole('button', { name: /^fallbacks$/i }).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByRole('button', { name: /^analytics$/i }).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByRole('button', { name: /^providers$/i }).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('header shows request count and savings on mobile', () => {
+    renderWithProvider(<Dashboard />);
+    // The header should show stats - look for the stat badges
+    const headerStats = screen.getAllByText(/\d+/);
+    expect(headerStats.length).toBeGreaterThan(0);
+    // Savings badge should show dollar amount
+    const savingsBadges = screen.getAllByText(/\$\d+\.\d+/);
+    expect(savingsBadges.length).toBeGreaterThan(0);
+  });
 });

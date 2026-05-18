@@ -101,12 +101,25 @@ export default function ConfidenceRouter() {
               />
             </div>
           </div>
-          <p className="text-xs text-text-muted mt-2 flex items-center gap-1.5">
-            <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
-            </svg>
-            Requests with avg logprob &lt; -1.5 will be escalated when threshold &ge; 0.5
-          </p>
+          <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
+            <p className="text-xs text-text-muted flex items-center gap-1.5">
+              <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
+              </svg>
+              Requests with avg logprob &lt; -1.5 will be escalated when threshold &ge; 0.5
+            </p>
+            <div className="flex items-center gap-3 text-[10px] text-text-muted">
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-success" /> Accept
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-warning" /> Review
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-error" /> Escalate
+              </span>
+            </div>
+          </div>
         </div>
       </section>
 

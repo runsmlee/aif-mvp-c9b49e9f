@@ -54,19 +54,22 @@ export default function CostSimulator() {
               type="number"
               value={volume}
               onChange={(e) => setVolume(e.target.value)}
-              className="w-full px-4 py-2 bg-surface-alt border border-border-subtle rounded-lg text-text-primary font-mono text-sm focus:border-primary focus:ring-1 focus:ring-primary/30 focus:outline-none transition-all duration-150 tabular-nums"
+              className="w-full px-4 py-2.5 bg-surface-alt border border-border-subtle rounded-lg text-text-primary font-mono text-sm focus:border-primary focus:ring-1 focus:ring-primary/30 focus:outline-none transition-all duration-150 tabular-nums min-h-[44px]"
               placeholder="e.g. 10000"
               aria-label="Monthly request volume"
               min="1"
             />
           </div>
-          <div className="flex items-end">
+          <div className="flex items-end gap-2">
             <button
               type="button"
               onClick={handleSimulate}
-              className="w-full sm:w-auto px-6 py-2.5 text-sm font-medium rounded-lg bg-primary text-white hover:bg-primary-hover transition-colors duration-200 active:scale-[0.97] min-h-[44px] shadow-sm shadow-primary/20"
+              className="w-full sm:w-auto px-6 py-2.5 text-sm font-medium rounded-lg bg-primary text-white hover:bg-primary-hover transition-colors duration-200 active:scale-[0.97] min-h-[44px] shadow-sm shadow-primary/20 flex items-center justify-center gap-2"
               aria-label="Simulate"
             >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+              </svg>
               Simulate
             </button>
           </div>

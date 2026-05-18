@@ -235,16 +235,16 @@ export default function Dashboard() {
                 <p className="text-[10px] text-text-muted leading-none mt-0.5 hidden sm:block">The insurance layer for your LLM stack</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="hidden sm:flex items-center gap-2 bg-surface-alt px-3 py-1.5 rounded-full border border-border-subtle">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center gap-2 bg-surface-alt px-2.5 sm:px-3 py-1.5 rounded-full border border-border-subtle">
                 <span className="w-1.5 h-1.5 rounded-full bg-success animate-[pulse-dot_2s_ease-in-out_infinite]" />
-                <span className="text-xs text-text-secondary">{stats.totalRequests} requests routed</span>
+                <span className="text-xs text-text-secondary tabular-nums">{stats.totalRequests}<span className="hidden sm:inline"> requests routed</span></span>
               </div>
-              <div className="flex items-center gap-1.5 bg-success/10 px-3 py-1.5 rounded-full border border-success/20">
+              <div className="flex items-center gap-1.5 bg-success/10 px-2.5 sm:px-3 py-1.5 rounded-full border border-success/20">
                 <svg className="w-3.5 h-3.5 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                   <line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                 </svg>
-                <span className="text-xs font-medium text-success">${stats.costSavingsUsd.toFixed(2)} saved</span>
+                <span className="text-xs font-medium text-success tabular-nums">${stats.costSavingsUsd.toFixed(2)}<span className="hidden sm:inline"> saved</span></span>
               </div>
             </div>
           </div>
@@ -289,7 +289,7 @@ export default function Dashboard() {
         {TABS.find(t => t.id === activeTab)?.label ?? ''} tab selected
       </div>
 
-      <main id="main-content" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+      <main id="main-content" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 sm:pb-8 flex-1 w-full">
         <div
           role="tabpanel"
           id={`panel-${activeTab}`}
@@ -302,7 +302,7 @@ export default function Dashboard() {
         </div>
       </main>
 
-      <footer className="border-t border-border/50 bg-surface/30 mt-auto">
+      <footer className="border-t border-border/50 bg-surface/30 mt-auto hidden sm:block">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2.5">
@@ -326,6 +326,29 @@ export default function Dashboard() {
           </div>
         </div>
       </footer>
+
+      {/* Mobile bottom tab bar */}
+      <nav className="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-surface/95 backdrop-blur-md border-t border-border" aria-label="Mobile navigation">
+        <div className="flex items-center justify-around h-16">
+          {TABS.map(tab => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => handleTabChange(tab.id)}
+              className={`flex flex-col items-center justify-center gap-1 min-w-[44px] min-h-[44px] flex-1 transition-colors duration-200 ${
+                activeTab === tab.id ? 'text-primary' : 'text-text-muted'
+              }`}
+              aria-label={tab.label}
+              aria-current={activeTab === tab.id ? 'page' : undefined}
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d={tab.iconPath} />
+              </svg>
+              <span className="text-[10px] font-medium">{tab.label}</span>
+            </button>
+          ))}
+        </div>
+      </nav>
 
       <ToastContainer />
     </div>

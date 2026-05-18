@@ -166,52 +166,113 @@ export default function RoutingAnalytics() {
           </div>
         </div>
         <div className="grid gap-3">
-          {modelBreakdown.map(({ model, total, accepted, escalated, avgLatency, acceptRate, totalCost }) => (
-            <div
-              key={model}
-              className="p-4 bg-surface-alt/60 rounded-lg border border-border-subtle hover:border-border transition-colors duration-200"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className={`w-3 h-3 rounded-full ${
-                    acceptRate >= 80 ? 'bg-success' : acceptRate >= 50 ? 'bg-warning' : 'bg-error'
-                  }`} />
-                  <span className="text-sm font-medium text-text-primary">{model}</span>
-                  <span className="text-xs text-text-muted tabular-nums bg-surface px-2 py-0.5 rounded-md">{total} req</span>
-                </div>
-                <div className="flex items-center gap-3 text-xs">
-                  <span className="text-text-muted tabular-nums">{avgLatency}ms avg</span>
-                  <span className="font-mono text-text-secondary tabular-nums">${totalCost.toFixed(4)}</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="flex-1 h-2 bg-surface-elevated rounded-full overflow-hidden">
-                  <div className="h-full flex">
-                    <div
-                      className="bg-success/70 rounded-l-full transition-all duration-500"
-                      style={{ width: `${acceptRate}%` }}
-                    />
-                    <div
-                      className="bg-warning/70 rounded-r-full transition-all duration-500"
-                      style={{ width: `${100 - acceptRate}%` }}
-                    />
+          {modelBreakdown.map(({ model, total, accepted, escalated, avgLatency, acceptRate, totalCost }) => {
+            const efficiency = acceptRate >= 80 ? 'High' : acceptRate >= 50 ? 'Medium' : 'Low';
+            const efficiencyColor = acceptRate >= 80 ? 'text-success' : acceptRate >= 50 ? 'text-warning' : 'text-error';
+
+            return (
+              <div
+                key={model}
+                className="p-4 bg-surface-alt/60 rounded-lg border border-border-subtle hover:border-border transition-colors duration-200"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-3 h-3 rounded-full ${
+                      acceptRate >= 80 ? 'bg-success' : acceptRate >= 50 ? 'bg-warning' : 'bg-error'
+                    }`} />
+                    <span className="text-sm font-medium text-text-primary">{model}</span>
+                    <span className="text-xs text-text-muted tabular-nums bg-surface px-2 py-0.5 rounded-md">{total} req</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs">
+                    <span className="text-text-muted tabular-nums">{avgLatency}ms avg</span>
+                    <span className="font-mono text-text-secondary tabular-nums">${totalCost.toFixed(4)}</span>
+                    <span className={`text-xs font-semibold ${efficiencyColor} bg-surface px-2 py-0.5 rounded-full border border-border-subtle`}>
+                      {efficiency} Efficiency
+                    </span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 text-xs min-w-[120px] justify-end">
-                  <span className="text-success tabular-nums">{accepted} OK</span>
-                  <span className="text-text-muted">/</span>
-                  <span className="text-warning tabular-nums">{escalated} esc</span>
-                  <span className={`font-bold tabular-nums min-w-[36px] text-right ${
-                    acceptRate >= 80 ? 'text-success' : acceptRate >= 50 ? 'text-warning' : 'text-error'
-                  }`}>
-                    {acceptRate}%
-                  </span>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-2 bg-surface-elevated rounded-full overflow-hidden">
+                    <div className="h-full flex">
+                      <div
+                        className="bg-success/70 rounded-l-full transition-all duration-500"
+                        style={{ width: `${acceptRate}%` }}
+                      />
+                      <div
+                        className="bg-warning/70 rounded-r-full transition-all duration-500"
+                        style={{ width: `${100 - acceptRate}%` }}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs min-w-[120px] justify-end">
+                    <span className="text-success tabular-nums">{accepted} OK</span>
+                    <span className="text-text-muted">/</span>
+                    <span className="text-warning tabular-nums">{escalated} esc</span>
+                    <span className={`font-bold tabular-nums min-w-[36px] text-right ${
+                      acceptRate >= 80 ? 'text-success' : acceptRate >= 50 ? 'text-warning' : 'text-error'
+                    }`}>
+                      {acceptRate}%
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
+
+      {/* Routing Insights Summary */}
+      {stats.totalRequests > 0 && (
+        <section className="bg-surface rounded-xl border border-border p-6" aria-label="Routing insights" data-testid="routing-insights">
+          <div className="flex items-center gap-2.5 mb-5">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <svg className="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-base font-semibold text-text-primary">Routing Insights</h2>
+              <p className="text-xs text-text-muted">Automated analysis of your routing patterns</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="p-3.5 bg-surface-alt/60 rounded-lg border border-border-subtle">
+              <div className="flex items-center gap-2 mb-1.5">
+                <div className="w-5 h-5 rounded-md bg-success/10 flex items-center justify-center">
+                  <svg className="w-3 h-3 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                  </svg>
+                </div>
+                <p className="text-xs font-semibold text-text-primary">Cost Efficiency</p>
+              </div>
+              <p className="text-xs text-text-secondary">
+                {stats.escalationRate < 0.3
+                  ? 'Excellent — low escalation rate means most requests are served by cost-effective models.'
+                  : stats.escalationRate < 0.5
+                    ? 'Good — about half of complex queries are escalated to higher-quality models when needed.'
+                    : 'High escalation rate detected. Consider adjusting your confidence threshold to reduce unnecessary escalations.'}
+              </p>
+            </div>
+            <div className="p-3.5 bg-surface-alt/60 rounded-lg border border-border-subtle">
+              <div className="flex items-center gap-2 mb-1.5">
+                <div className="w-5 h-5 rounded-md bg-warning/10 flex items-center justify-center">
+                  <svg className="w-3 h-3 text-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                  </svg>
+                </div>
+                <p className="text-xs font-semibold text-text-primary">Latency Profile</p>
+              </div>
+              <p className="text-xs text-text-secondary">
+                {stats.avgLatencyMs < 500
+                  ? 'Fast — average latency is well within acceptable range for interactive applications.'
+                  : stats.avgLatencyMs < 1000
+                    ? 'Moderate — latency is acceptable but watch for spikes during peak usage.'
+                    : 'High latency detected. Consider adding faster models to your fallback chain.'}
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   );
 }

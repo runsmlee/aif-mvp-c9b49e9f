@@ -182,7 +182,7 @@ export default function RequestLogInspector() {
       </section>
 
       {/* Mobile Card View */}
-      <section className="sm:hidden space-y-2" aria-label="Request log cards">
+      <section className="sm:hidden space-y-2" aria-label="Request log cards" data-testid="mobile-log-cards">
         {filteredEvents.length === 0 ? (
           <div className="bg-surface rounded-xl border border-border p-8 text-center">
             <svg className="w-8 h-8 text-text-muted/50 mx-auto mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
@@ -194,7 +194,11 @@ export default function RequestLogInspector() {
           filteredEvents.map(event => (
             <div
               key={event.id}
-              className="bg-surface rounded-lg border border-border-subtle p-3 space-y-2"
+              className={`bg-surface rounded-lg border p-3.5 space-y-2.5 transition-colors duration-200 ${
+                event.decision === 'escalated'
+                  ? 'border-warning/20 bg-warning/[0.02]'
+                  : 'border-border-subtle'
+              }`}
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-mono text-text-muted tabular-nums">
@@ -207,17 +211,18 @@ export default function RequestLogInspector() {
                       : 'bg-warning/15 text-warning border border-warning/20'
                   }`}
                 >
+                  <span className={`w-1.5 h-1.5 rounded-full mr-1 ${event.decision === 'accepted' ? 'bg-success' : 'bg-warning'}`} />
                   {event.decision}
                 </span>
               </div>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 flex-wrap">
                 <span className="text-sm font-medium text-text-primary">{event.primaryModel}</span>
                 {event.fallbackModel && (
                   <>
-                    <svg className="w-3 h-3 text-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                    <svg className="w-3 h-3 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="9 18 15 12 9 6" />
                     </svg>
-                    <span className="text-sm text-primary">{event.fallbackModel}</span>
+                    <span className="text-sm text-primary font-medium">{event.fallbackModel}</span>
                   </>
                 )}
               </div>
@@ -230,6 +235,7 @@ export default function RequestLogInspector() {
                   {event.confidenceScore}
                 </span>
                 <span className="font-mono text-text-muted">{event.latencyMs}ms</span>
+                <span className="font-mono text-text-muted ml-auto">${event.costUsd.toFixed(4)}</span>
               </div>
             </div>
           ))

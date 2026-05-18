@@ -42,7 +42,8 @@ describe('FallbackChain', () => {
     await userEvent.click(option);
 
     expect(screen.getByText(/GPT-4o Mini/i)).toBeInTheDocument();
-    expect(screen.getByText(/confidence/i)).toBeInTheDocument();
+    // Condition type is shown as a clickable label in the entry
+    expect(screen.getByRole('button', { name: /edit condition for gpt-4o mini/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /remove/i })).toBeInTheDocument();
   });
 
@@ -97,5 +98,56 @@ describe('FallbackChain', () => {
     await userEvent.click(saveBtn);
 
     expect(screen.getByText(/fallback chain saved/i)).toBeInTheDocument();
+  });
+
+  // --- Improvement tests: Condition editing ---
+  describe('Condition Editing', () => {
+    it('clicking condition label opens inline editor', async () => {
+      renderWithProvider(<FallbackChain />);
+      const addBtn = screen.getByRole('button', { name: /add model/i });
+      await userEvent.click(addBtn);
+      await userEvent.click(screen.getByRole('option', { name: /gpt-4o mini/i }));
+
+      const editBtn = screen.getByRole('button', { name: /edit condition for gpt-4o mini/i });
+      await userEvent.click(editBtn);
+
+      // Should show condition type selector and value input
+      expect(screen.getByLabelText(/condition type/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/condition value/i)).toBeInTheDocument();
+    });
+
+    it('can change condition type from confidence to timeout', async () => {
+      renderWithProvider(<FallbackChain />);
+      const addBtn = screen.getByRole('button', { name: /add model/i });
+      await userEvent.click(addBtn);
+      await userEvent.click(screen.getByRole('option', { name: /gpt-4o mini/i }));
+
+      const editBtn = screen.getByRole('button', { name: /edit condition for gpt-4o mini/i });
+      await userEvent.click(editBtn);
+
+      const typeSelect = screen.getByLabelText(/condition type/i);
+      await userEvent.selectOptions(typeSelect, 'timeout');
+
+      const applyBtn = screen.getByRole('button', { name: /apply condition/i });
+      await userEvent.click(applyBtn);
+
+      // Editor should close and show updated condition
+      expect(screen.getByRole('button', { name: /edit condition for gpt-4o mini/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /edit condition for gpt-4o mini/i }).textContent).toContain('timeout');
+    });
+
+    it('shows success indicator when chain has 3+ models', async () => {
+      renderWithProvider(<FallbackChain />);
+      const addBtn = screen.getByRole('button', { name: /add model/i });
+
+      await userEvent.click(addBtn);
+      await userEvent.click(screen.getByRole('option', { name: /gpt-4o mini/i }));
+      await userEvent.click(addBtn);
+      await userEvent.click(screen.getByRole('option', { name: /gpt-4o\b/i }));
+      await userEvent.click(addBtn);
+      await userEvent.click(screen.getByRole('option', { name: /claude sonnet/i }));
+
+      expect(screen.getByText(/chain configured with 3 models/i)).toBeInTheDocument();
+    });
   });
 });

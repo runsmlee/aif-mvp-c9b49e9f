@@ -20,7 +20,9 @@ describe('RoutingAnalytics', () => {
   it('renders analytics overview cards (Total Requests, Escalations, Avg Latency, Cost Savings)', () => {
     renderWithProvider(<RoutingAnalytics />);
     expect(screen.getByText(/total requests/i)).toBeInTheDocument();
-    expect(screen.getByText(/escalations/i)).toBeInTheDocument();
+    // "Escalations" appears in stat card and insights, so check stat card context specifically
+    const analyticsCards = screen.getByTestId('analytics-cards');
+    expect(analyticsCards.textContent).toMatch(/escalations/i);
     expect(screen.getByText(/avg latency/i)).toBeInTheDocument();
     expect(screen.getByText(/cost savings/i)).toBeInTheDocument();
   });
@@ -86,6 +88,31 @@ describe('RoutingAnalytics', () => {
       renderWithEmptyEvents(<RoutingAnalytics />);
       expect(screen.queryByTestId('analytics-cards')).not.toBeInTheDocument();
       expect(screen.queryByTestId('request-chart')).not.toBeInTheDocument();
+    });
+
+    it('does not render routing insights in empty state', () => {
+      renderWithEmptyEvents(<RoutingAnalytics />);
+      expect(screen.queryByTestId('routing-insights')).not.toBeInTheDocument();
+    });
+  });
+
+  // --- Improvement tests: Routing insights ---
+  describe('Routing Insights', () => {
+    it('renders routing insights section when data exists', () => {
+      renderWithProvider(<RoutingAnalytics />);
+      expect(screen.getByTestId('routing-insights')).toBeInTheDocument();
+    });
+
+    it('shows cost efficiency and latency profile insights', () => {
+      renderWithProvider(<RoutingAnalytics />);
+      expect(screen.getByText(/cost efficiency/i)).toBeInTheDocument();
+      expect(screen.getByText(/latency profile/i)).toBeInTheDocument();
+    });
+
+    it('per-model breakdown includes efficiency rating', () => {
+      renderWithProvider(<RoutingAnalytics />);
+      const breakdown = screen.getByTestId('per-model-breakdown');
+      expect(breakdown.textContent).toMatch(/efficiency/i);
     });
   });
 });

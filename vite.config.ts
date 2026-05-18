@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     tailwindcss(),
@@ -22,7 +22,7 @@ export default defineConfig({
     },
   },
   define: {
-    'process.env.NODE_ENV': '"development"',
+    'process.env.NODE_ENV': mode === 'test' ? '"test"' : undefined,
   },
   test: {
     globals: true,
@@ -35,4 +35,4 @@ export default defineConfig({
       },
     },
   },
-} as unknown as import('vitest/config').UserConfig);
+})) as unknown as import('vitest/config').UserConfig;
