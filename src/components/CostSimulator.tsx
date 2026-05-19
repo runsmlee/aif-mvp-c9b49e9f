@@ -117,7 +117,7 @@ export default function CostSimulator() {
                       ${result.totalCost.toLocaleString()}
                     </span>
                     {isRecommended && (
-                      <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-semibold bg-success/15 text-success rounded-full border border-success/20">
+                      <span className="inline-flex items-center px-2 py-0.5 text-xs font-semibold bg-success/15 text-success rounded-full border border-success/20">
                         Best Value
                       </span>
                     )}

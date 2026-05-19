@@ -79,7 +79,7 @@ export default function ConfidenceRouter() {
               aria-valuetext={`Threshold: ${threshold}`}
             />
             {/* Threshold zone markers */}
-            <div className="flex justify-between mt-1.5 text-[10px] text-text-muted tabular-nums">
+            <div className="flex justify-between mt-1.5 text-xs text-text-muted tabular-nums">
               <span>Lenient</span>
               <span>Balanced</span>
               <span>Strict</span>
@@ -89,7 +89,7 @@ export default function ConfidenceRouter() {
             <span className="text-sm font-mono font-bold text-primary bg-primary/10 px-3 py-1.5 rounded-lg" data-testid="threshold-value">
               {threshold}
             </span>
-            <span className="text-[10px] text-text-muted mt-1">{thresholdPercent}%</span>
+            <span className="text-xs text-text-muted mt-1">{thresholdPercent}%</span>
           </div>
         </div>
         <div className="mt-4 p-3 bg-surface-alt/60 rounded-lg border border-border-subtle">
@@ -108,7 +108,7 @@ export default function ConfidenceRouter() {
               </svg>
               Requests with avg logprob &lt; -1.5 will be escalated when threshold &ge; 0.5
             </p>
-            <div className="flex items-center gap-3 text-[10px] text-text-muted">
+            <div className="flex items-center gap-3 text-xs text-text-muted">
               <span className="flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-success" /> Accept
               </span>
@@ -224,7 +224,7 @@ export default function ConfidenceRouter() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
               <div className="p-3.5 bg-surface-alt/40 rounded-lg border border-warning/20 relative">
                 <div className="absolute top-2 right-2">
-                  <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-warning/15 text-warning rounded-full">
+                  <span className="px-1.5 py-0.5 text-xs font-semibold bg-warning/15 text-warning rounded-full">
                     Low Confidence
                   </span>
                 </div>
@@ -243,7 +243,7 @@ export default function ConfidenceRouter() {
               </div>
               <div className="p-3.5 bg-success/5 rounded-lg border border-success/20 relative">
                 <div className="absolute top-2 right-2">
-                  <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-success/15 text-success rounded-full">
+                  <span className="px-1.5 py-0.5 text-xs font-semibold bg-success/15 text-success rounded-full">
                     Escalated To
                   </span>
                 </div>
@@ -331,7 +331,7 @@ export default function ConfidenceRouter() {
                             style={{ width: `${acceptanceRate}%` }}
                           />
                         </div>
-                        <span className={`text-[11px] font-semibold tabular-nums min-w-[32px] text-right ${
+                        <span className={`text-xs font-semibold tabular-nums min-w-[32px] text-right ${
                           acceptanceRate >= 80 ? 'text-success' : acceptanceRate >= 50 ? 'text-warning' : 'text-error'
                         }`}>
                           {acceptanceRate}%

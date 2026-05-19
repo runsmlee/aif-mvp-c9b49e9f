@@ -130,7 +130,7 @@ export default function RoutingAnalytics() {
 
             return (
               <div key={hour} className="flex-1 flex flex-col items-center gap-1 group/bar" title={`${hour}: ${total} requests`}>
-                <span className="text-[10px] text-text-muted tabular-nums opacity-0 group-hover/bar:opacity-100 transition-opacity">{total}</span>
+                <span className="text-xs text-text-muted tabular-nums opacity-0 group-hover/bar:opacity-100 transition-opacity">{total}</span>
                 <div className="w-full relative" style={{ height: '140px' }}>
                   <div
                     className="absolute bottom-0 w-full rounded-t overflow-hidden transition-all duration-300 hover:opacity-90"
@@ -140,7 +140,7 @@ export default function RoutingAnalytics() {
                     <div className="bg-warning/70" style={{ height: `${escalatedPercent}%` }} />
                   </div>
                 </div>
-                <span className="text-[9px] text-text-muted tabular-nums mt-1 truncate max-w-full">{hour.slice(11)}</span>
+                <span className="text-xs text-text-muted tabular-nums mt-1 truncate max-w-full">{hour.slice(11)}</span>
               </div>
             );
           })}

@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #EF4444;
-  --color-primary-hover: #DC2626;
+  --color-primary: #B91C1C;
+  --color-primary-hover: #991B1B;
   --color-primary-soft: #FEE2E2;
   --color-surface: #111827;
   --color-surface-alt: #1F2937;
@@ -13,11 +13,11 @@
   --color-success-soft: #D1FAE5;
   --color-warning: #F59E0B;
   --color-warning-soft: #FEF3C7;
-  --color-error: #EF4444;
+  --color-error: #B91C1C;
   --color-error-soft: #FEE2E2;
   --color-text-primary: #F9FAFB;
-  --color-text-secondary: #9CA3AF;
-  --color-text-muted: #6B7280;
+  --color-text-secondary: #CBD5E1;
+  --color-text-muted: #9CA3AF;
   --color-text-accent: #E5E7EB;
 }
 
@@ -38,7 +38,7 @@ body {
 }
 
 ::selection {
-  background-color: rgba(239, 68, 68, 0.25);
+  background-color: rgba(185, 28, 28, 0.25);
   color: var(--color-text-primary);
 }
 
@@ -123,7 +123,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 input[type="range"]::-webkit-slider-thumb:hover {
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+  box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.2);
   transform: scale(1.1);
 }
 
@@ -139,7 +139,7 @@ input[type="range"]::-moz-range-thumb {
 }
 
 input[type="range"]::-moz-range-thumb:hover {
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+  box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.2);
   transform: scale(1.1);
 }
 

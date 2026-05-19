@@ -106,7 +106,7 @@ export default function ProviderRegistry() {
                   {provider.models.length} models
                 </span>
                 {provider.status === 'connected' && (
-                  <span className="text-[10px] font-semibold text-success bg-success/10 px-2 py-0.5 rounded-full border border-success/20">
+                  <span className="text-xs font-semibold text-success bg-success/10 px-2 py-0.5 rounded-full border border-success/20">
                     Connected
                   </span>
                 )}

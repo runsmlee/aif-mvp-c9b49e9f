@@ -23,7 +23,7 @@ export function HeroStats({ stats }: HeroStatsProps) {
             </div>
           </div>
           <p className="text-2xl font-bold text-text-primary tabular-nums">{stats.totalRequests.toLocaleString()}</p>
-          <p className="text-[10px] text-text-muted mt-1">routed requests</p>
+          <p className="text-xs text-text-muted mt-1">routed requests</p>
         </div>
       </div>
       <div className="relative bg-surface rounded-xl border border-border-subtle p-4 hover:border-border transition-all duration-200 group overflow-hidden">
@@ -38,7 +38,7 @@ export function HeroStats({ stats }: HeroStatsProps) {
             </div>
           </div>
           <p className="text-2xl font-bold text-warning tabular-nums">{stats.escalations}</p>
-          <p className="text-[10px] text-text-muted mt-1">{escalationRate}% escalation rate</p>
+          <p className="text-xs text-text-muted mt-1">{escalationRate}% escalation rate</p>
         </div>
       </div>
       <div className="relative bg-surface rounded-xl border border-border-subtle p-4 hover:border-border transition-all duration-200 group overflow-hidden">
@@ -53,7 +53,7 @@ export function HeroStats({ stats }: HeroStatsProps) {
             </div>
           </div>
           <p className="text-2xl font-bold text-text-primary tabular-nums">{stats.avgLatencyMs}<span className="text-sm font-normal text-text-muted">ms</span></p>
-          <p className="text-[10px] text-text-muted mt-1">across all models</p>
+          <p className="text-xs text-text-muted mt-1">across all models</p>
         </div>
       </div>
       <div className="relative bg-surface rounded-xl border border-success/20 p-4 hover:border-success/30 transition-all duration-200 group overflow-hidden">
@@ -68,7 +68,7 @@ export function HeroStats({ stats }: HeroStatsProps) {
             </div>
           </div>
           <p className="text-2xl font-bold text-success tabular-nums">${stats.costSavingsUsd.toFixed(2)}</p>
-          <p className="text-[10px] text-text-muted mt-1">vs. always-frontier</p>
+          <p className="text-xs text-text-muted mt-1">vs. always-frontier</p>
         </div>
       </div>
     </div>
