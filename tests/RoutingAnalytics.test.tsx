@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { RoutingProvider } from '../src/context/RoutingContext';
 import RoutingAnalytics from '../src/components/RoutingAnalytics';
@@ -17,6 +17,9 @@ function renderWithEmptyEvents(ui: React.ReactElement) {
 }
 
 describe('RoutingAnalytics', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
   it('renders analytics overview cards (Total Requests, Escalations, Avg Latency, Cost Savings)', () => {
     renderWithProvider(<RoutingAnalytics />);
     expect(screen.getByText(/total requests/i)).toBeInTheDocument();

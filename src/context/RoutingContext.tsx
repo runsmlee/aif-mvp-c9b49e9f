@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useCallback, type ReactNode, type Dispatch, type SetStateAction } from 'react';
 import type { RoutingEvent, FallbackEntry, ToastMessage } from '../types';
 import { MOCK_ROUTING_EVENTS } from '../data/mockData';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 interface RoutingContextType {
   events: RoutingEvent[];
@@ -18,13 +19,17 @@ const RoutingContext = createContext<RoutingContextType | null>(null);
 
 export function RoutingProvider({ children, initialEvents }: { children: ReactNode; initialEvents?: RoutingEvent[] }) {
   const [events, setEvents] = useState<RoutingEvent[]>(initialEvents ?? MOCK_ROUTING_EVENTS);
-  const [fallbackChain, setFallbackChain] = useState<FallbackEntry[]>([]);
-  const [threshold, setThreshold] = useState(0.7);
+  const [fallbackChain, setFallbackChain] = useLocalStorage<FallbackEntry[]>('routeforge-fallback-chain', []);
+  const [threshold, setThresholdValue] = useLocalStorage<number>('routeforge-threshold', 0.7);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
   const addEvent = useCallback((event: RoutingEvent) => {
     setEvents(prev => [event, ...prev]);
   }, []);
+
+  const setThreshold = useCallback((t: number) => {
+    setThresholdValue(t);
+  }, [setThresholdValue]);
 
   const showToast = useCallback((message: string, type: ToastMessage['type'] = 'success') => {
     const id = crypto.randomUUID();

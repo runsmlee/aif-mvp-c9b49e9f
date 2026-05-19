@@ -20,15 +20,32 @@ const localStorageMock = (() => {
   };
 })();
 
+function mockTestConnectionResponse(success: boolean, message = 'Connected successfully') {
+  return {
+    ok: true,
+    json: () => Promise.resolve({
+      success,
+      message,
+      provider: 'OpenAI',
+      latencyMs: 150,
+    }),
+  };
+}
+
 describe('ProviderRegistry', () => {
   beforeEach(() => {
     Object.defineProperty(window, 'localStorage', { value: localStorageMock });
     localStorageMock.clear();
     vi.useFakeTimers({ shouldAdvanceTime: true });
+    // Default: mock test-connection API to succeed
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      mockTestConnectionResponse(true) as unknown as Response
+    );
   });
 
   afterEach(() => {
     vi.useRealTimers();
+    vi.restoreAllMocks();
   });
 
   it('renders provider cards for OpenAI, Anthropic, Google, Ollama', () => {
@@ -60,9 +77,9 @@ describe('ProviderRegistry', () => {
     const testBtn = screen.getByRole('button', { name: /test connection/i });
     await userEvent.click(testBtn);
 
-    // Wait for simulated connection test (500ms)
+    // Wait for async fetch + state update
     await act(async () => {
-      vi.advanceTimersByTime(600);
+      await vi.runAllTimersAsync();
     });
 
     // Should show connected status (via aria-label on status indicator)
@@ -84,7 +101,7 @@ describe('ProviderRegistry', () => {
 
     // Wait for connection
     await act(async () => {
-      vi.advanceTimersByTime(600);
+      await vi.runAllTimersAsync();
     });
 
     // Now click remove button on the connected provider
@@ -108,7 +125,7 @@ describe('ProviderRegistry', () => {
 
     // Wait for test
     await act(async () => {
-      vi.advanceTimersByTime(600);
+      await vi.runAllTimersAsync();
     });
 
     // Verify provider was saved to localStorage

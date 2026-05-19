@@ -3,7 +3,7 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 import { DEFAULT_PROVIDERS } from '../data/mockData';
 import type { Provider } from '../types';
 
-const STORAGE_KEY = 'logroute-providers';
+const STORAGE_KEY = 'routeforge-providers';
 
 export default function ProviderRegistry() {
   const [providers, setProviders] = useLocalStorage<Provider[]>(STORAGE_KEY, DEFAULT_PROVIDERS);
@@ -16,21 +16,48 @@ export default function ProviderRegistry() {
     setApiKeyInput('');
   }, []);
 
-  const testConnection = useCallback((providerId: string) => {
+  const testConnection = useCallback(async (providerId: string) => {
+    const provider = providers.find(p => p.id === providerId);
+    if (!provider) return;
+
     setProviders(prev =>
       prev.map(p => p.id === providerId ? { ...p, status: 'testing' as const } : p)
     );
 
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/test-connection', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider: provider.name,
+          apiKey: apiKeyInput,
+        }),
+      });
+
+      const result = await response.json() as { success: boolean; message: string };
+
       setProviders(prev =>
         prev.map(p =>
           p.id === providerId
-            ? { ...p, status: 'connected' as const, apiKey: apiKeyInput }
+            ? {
+                ...p,
+                status: result.success ? 'connected' as const : 'disconnected' as const,
+                apiKey: result.success ? apiKeyInput : undefined,
+              }
             : p
         )
       );
-    }, 500);
-  }, [apiKeyInput, setProviders]);
+    } catch {
+      // Network error — mark as disconnected
+      setProviders(prev =>
+        prev.map(p =>
+          p.id === providerId
+            ? { ...p, status: 'disconnected' as const }
+            : p
+        )
+      );
+    }
+  }, [apiKeyInput, setProviders, providers]);
 
   const saveApiKey = useCallback((providerId: string) => {
     if (apiKeyInput.trim()) {

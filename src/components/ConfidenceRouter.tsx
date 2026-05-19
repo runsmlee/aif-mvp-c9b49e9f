@@ -1,45 +1,105 @@
 import { useState, useCallback } from 'react';
 import { useRouting } from '../context/RoutingContext';
 import { AVAILABLE_MODELS } from '../data/mockData';
-import { shouldEscalate } from '../utils/routing';
+import { shouldEscalate, computeConfidenceScore, computeLatency, selectFallbackModel } from '../utils/routing';
 import type { RoutingEvent } from '../types';
 
 export default function ConfidenceRouter() {
-  const { events, threshold, setThreshold, addEvent } = useRouting();
+  const { events, threshold, setThreshold, addEvent, fallbackChain } = useRouting();
   const [testPrompt, setTestPrompt] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [lastResult, setLastResult] = useState<RoutingEvent | null>(null);
 
   const escalationEvents = events.filter(e => e.decision === 'escalated');
 
-  const handleTestPrompt = useCallback(() => {
+  const handleTestPrompt = useCallback(async () => {
     if (!testPrompt.trim()) return;
     setIsSubmitting(true);
 
-    const primaryModel = AVAILABLE_MODELS[0];
-    const fallbackModel = AVAILABLE_MODELS[1];
-    const confidenceScore = shouldEscalate(-2.0, threshold) ? -2.0 + Math.random() * -1.5 : -0.3 + Math.random() * 0.5;
-    const isEscalated = shouldEscalate(confidenceScore, threshold);
+    try {
+      // Use real confidence scoring algorithm
+      const confidenceScore = computeConfidenceScore(testPrompt);
 
-    const event: RoutingEvent = {
-      id: crypto.randomUUID(),
-      timestamp: new Date().toISOString(),
-      prompt: testPrompt,
-      primaryModel: primaryModel.name,
-      ...(isEscalated ? { fallbackModel: fallbackModel.name } : {}),
-      confidenceScore: Number(confidenceScore.toFixed(2)),
-      latencyMs: Math.round(primaryModel.avgLatencyMs + (isEscalated ? fallbackModel.avgLatencyMs : 0) + Math.random() * 200),
-      decision: isEscalated ? 'escalated' : 'accepted',
-      costUsd: Number(((primaryModel.costPer1kTokens * 500 / 1000) + (isEscalated ? fallbackModel.costPer1kTokens * 500 / 1000 : 0)).toFixed(4)),
-    };
+      // Select models based on fallback chain from context
+      const primaryModel = fallbackChain.length > 0
+        ? fallbackChain[0].model
+        : AVAILABLE_MODELS[0];
 
-    setTimeout(() => {
-      addEvent(event);
-      setLastResult(event);
+      const isEscalated = shouldEscalate(confidenceScore, threshold);
+
+      let fallbackModel: typeof AVAILABLE_MODELS[0] | undefined;
+      if (isEscalated && fallbackChain.length > 0) {
+        const fallbackEntry = selectFallbackModel(
+          fallbackChain,
+          confidenceScore,
+          primaryModel.avgLatencyMs,
+          primaryModel.costPer1kTokens,
+        );
+        if (fallbackEntry) {
+          fallbackModel = fallbackEntry.model;
+        } else {
+          // Default to second chain entry or second available model
+          fallbackModel = fallbackChain.length > 1
+            ? fallbackChain[1].model
+            : AVAILABLE_MODELS[1];
+        }
+      }
+
+      const primaryLatency = computeLatency(primaryModel.avgLatencyMs, testPrompt);
+      const totalLatency = isEscalated && fallbackModel
+        ? primaryLatency + computeLatency(fallbackModel.avgLatencyMs, testPrompt)
+        : primaryLatency;
+
+      const avgTokens = 500;
+      const totalCost = (primaryModel.costPer1kTokens * avgTokens / 1000) +
+        (isEscalated && fallbackModel ? fallbackModel.costPer1kTokens * avgTokens / 1000 : 0);
+
+      const event: RoutingEvent = {
+        id: crypto.randomUUID(),
+        timestamp: new Date().toISOString(),
+        prompt: testPrompt,
+        primaryModel: primaryModel.name,
+        ...(fallbackModel ? { fallbackModel: fallbackModel.name } : {}),
+        confidenceScore,
+        latencyMs: Math.round(totalLatency),
+        decision: isEscalated && fallbackModel ? 'escalated' : 'accepted',
+        costUsd: Number(totalCost.toFixed(4)),
+      };
+
+      // Make a real API call to the routing endpoint
+      try {
+        const response = await fetch('/api/route-prompt', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: testPrompt,
+            threshold,
+            primaryModel,
+            fallbackChain,
+          }),
+        });
+
+        if (response.ok) {
+          const apiResult = await response.json() as RoutingEvent;
+          // Use the API result which has server-side confidence computation
+          addEvent(apiResult);
+          setLastResult(apiResult);
+        } else {
+          // Fallback to client-side result if API fails
+          addEvent(event);
+          setLastResult(event);
+        }
+      } catch {
+        // Network error — use client-side computed result
+        addEvent(event);
+        setLastResult(event);
+      }
+
       setTestPrompt('');
+    } finally {
       setIsSubmitting(false);
-    }, 400);
-  }, [testPrompt, threshold, addEvent]);
+    }
+  }, [testPrompt, threshold, addEvent, fallbackChain]);
 
   const thresholdPercent = Math.round(threshold * 100);
 
@@ -106,7 +166,7 @@ export default function ConfidenceRouter() {
               <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
               </svg>
-              Requests with avg logprob &lt; -1.5 will be escalated when threshold &ge; 0.5
+              Requests below logprob cutoff {(-4.0 * (1 - threshold)).toFixed(1)} will be escalated to fallback models
             </p>
             <div className="flex items-center gap-3 text-xs text-text-muted">
               <span className="flex items-center gap-1">

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { RoutingProvider } from '../src/context/RoutingContext';
@@ -9,6 +9,9 @@ function renderWithProvider(ui: React.ReactElement) {
 }
 
 describe('CostSimulator', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
   it('renders input field for monthly request volume', () => {
     renderWithProvider(<CostSimulator />);
     const input = screen.getByLabelText(/monthly request volume/i);

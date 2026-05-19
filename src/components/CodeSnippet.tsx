@@ -1,9 +1,9 @@
 import { useState, useCallback } from 'react';
 
-const CODE_SNIPPET = `import { LogRoute } from '@logroute/sdk';
+const CODE_SNIPPET = `import { RouteForge } from '@routeforge/sdk';
 
-const route = new LogRoute({ apiKey: process.env.LR_KEY });
-const response = await route.guard('Explain quantum computing');
+const router = new RouteForge({ apiKey: process.env.ROUTEFORGE_KEY });
+const response = await router.guard('Explain quantum computing');
 console.log(response.model, response.confidence);`;
 
 export default function CodeSnippet() {
@@ -89,7 +89,7 @@ export default function CodeSnippet() {
           <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
         </svg>
         <p className="text-[11px] text-text-muted">
-          Replace <code className="px-1 py-0.5 bg-surface-elevated rounded text-text-secondary font-mono">process.env.LR_KEY</code> with your LogRoute API key
+          Replace <code className="px-1 py-0.5 bg-surface-elevated rounded text-text-secondary font-mono">process.env.ROUTEFORGE_KEY</code> with your RouteForge API key
         </p>
       </div>
     </div>
@@ -144,7 +144,7 @@ function highlightKeywords(
       }
     }
 
-    const classMatch = remaining.match(/\b(LogRoute|console)\b/);
+    const classMatch = remaining.match(/\b(RouteForge|console)\b/);
     if (classMatch && classMatch.index !== undefined) {
       if (!earliestMatch || classMatch.index < earliestMatch.index) {
         earliestMatch = {

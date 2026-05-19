@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { RoutingProvider } from '../src/context/RoutingContext';
 import ConfidenceRouter from '../src/components/ConfidenceRouter';
@@ -8,7 +8,29 @@ function renderWithProvider(ui: React.ReactElement) {
   return render(<RoutingProvider>{ui}</RoutingProvider>);
 }
 
+// Mock route-prompt API response
+function mockRoutePromptResponse(overrides: Record<string, unknown> = {}) {
+  return {
+    ok: true,
+    json: () => Promise.resolve({
+      id: 'test-uuid',
+      timestamp: new Date().toISOString(),
+      prompt: 'Test prompt',
+      primaryModel: 'GPT-4o Mini',
+      confidenceScore: -0.35,
+      latencyMs: 350,
+      decision: 'accepted',
+      costUsd: 0.0005,
+      ...overrides,
+    }),
+  };
+}
+
 describe('ConfidenceRouter', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
   it('renders threshold slider with default value of 0.7', () => {
     renderWithProvider(<ConfidenceRouter />);
     const slider = screen.getByRole('slider');
@@ -50,10 +72,12 @@ describe('ConfidenceRouter', () => {
   describe('Routing Result Card', () => {
     beforeEach(() => {
       vi.useFakeTimers({ shouldAdvanceTime: true });
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(mockRoutePromptResponse() as unknown as Response);
     });
 
     afterEach(() => {
       vi.useRealTimers();
+      vi.restoreAllMocks();
     });
 
     it('shows routing result card after test prompt submission', async () => {
@@ -64,9 +88,9 @@ describe('ConfidenceRouter', () => {
       const sendBtn = screen.getByRole('button', { name: /send test prompt/i });
       await userEvent.click(sendBtn);
 
-      // Wait for the simulated network delay (400ms)
+      // Wait for the async fetch + state update
       await act(async () => {
-        vi.advanceTimersByTime(500);
+        await vi.runAllTimersAsync();
       });
 
       // Result card should appear with routing result section
@@ -82,7 +106,7 @@ describe('ConfidenceRouter', () => {
       await userEvent.click(sendBtn);
 
       await act(async () => {
-        vi.advanceTimersByTime(500);
+        await vi.runAllTimersAsync();
       });
 
       const resultCard = screen.getByTestId('routing-result');
@@ -101,7 +125,7 @@ describe('ConfidenceRouter', () => {
       await userEvent.click(sendBtn);
 
       await act(async () => {
-        vi.advanceTimersByTime(500);
+        await vi.runAllTimersAsync();
       });
 
       const resultCard = screen.getByTestId('routing-result');
@@ -111,6 +135,11 @@ describe('ConfidenceRouter', () => {
     });
 
     it('disables send button while routing is in progress', async () => {
+      // Use a fetch that doesn't resolve immediately so we can see the loading state
+      let resolveFetch: (value: unknown) => void;
+      const pendingFetch = new Promise(resolve => { resolveFetch = resolve; });
+      vi.spyOn(globalThis, 'fetch').mockReturnValue(pendingFetch as unknown as Promise<Response>);
+
       renderWithProvider(<ConfidenceRouter />);
       const input = screen.getByPlaceholderText(/enter a prompt/i);
       await userEvent.type(input, 'Test');
@@ -118,8 +147,14 @@ describe('ConfidenceRouter', () => {
       const sendBtn = screen.getByRole('button', { name: /send test prompt/i });
       await userEvent.click(sendBtn);
 
-      // Button should show loading state
+      // Button should show loading state while fetch is pending
       expect(screen.getByText(/routing\.\.\./i)).toBeInTheDocument();
+
+      // Resolve the fetch to clean up
+      resolveFetch!(mockRoutePromptResponse());
+      await act(async () => {
+        await vi.runAllTimersAsync();
+      });
     });
   });
 });

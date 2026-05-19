@@ -230,9 +230,9 @@ export default function Dashboard() {
               </div>
               <div>
                 <h1 className="text-lg font-bold text-text-primary tracking-tight leading-none">
-                  Log<span className="text-primary">Route</span>
+                  Route<span className="text-primary">Forge</span>
                 </h1>
-                <p className="text-xs text-text-muted leading-none mt-0.5 hidden sm:block">Routing analytics for model-heavy stacks</p>
+                <p className="text-xs text-text-muted leading-none mt-0.5 hidden sm:block">Confidence-based routing for LLM stacks</p>
               </div>
             </div>
             <div className="flex items-center gap-2 sm:gap-3">
@@ -312,7 +312,7 @@ export default function Dashboard() {
                 </svg>
               </div>
               <span className="text-xs text-text-muted">
-                Log<span className="text-text-secondary">Route</span> &middot; The insurance layer for your LLM stack
+                Route<span className="text-text-secondary">Forge</span> &middot; The insurance layer for your LLM stack
               </span>
             </div>
             <div className="flex items-center gap-4 text-xs text-text-muted">
