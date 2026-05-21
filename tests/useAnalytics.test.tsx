@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render } from '@testing-library/react';
+import { render, act } from '@testing-library/react';
 import { useAnalytics, trackEvent } from '../src/hooks/useAnalytics';
 
 function Harness() {
@@ -10,9 +10,11 @@ function Harness() {
 describe('useAnalytics', () => {
   beforeEach(() => {
     delete (window as unknown as Record<string, unknown>).aif;
+    vi.useFakeTimers({ shouldAdvanceTime: true });
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.restoreAllMocks();
   });
 
@@ -52,5 +54,43 @@ describe('useAnalytics', () => {
 
     trackEvent('custom_event', { key: 'value' });
     expect(track).toHaveBeenCalledWith('custom_event', { key: 'value' });
+  });
+
+  it('retries page_view when window.aif is not initially available', () => {
+    // aif is not available on mount
+    const track = vi.fn();
+
+    render(<Harness />);
+
+    // After first attempt failed, simulate aif loading after delay
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
+
+    // Still no aif — no call yet
+    expect(track).not.toHaveBeenCalled();
+
+    // Now make aif available
+    (window as unknown as { aif: typeof window.aif }).aif = { track };
+
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
+
+    // Should have been called on the retry
+    expect(track).toHaveBeenCalledTimes(1);
+    expect(track).toHaveBeenCalledWith('page_view', expect.objectContaining({
+      path: window.location.pathname,
+    }));
+  });
+
+  it('tracks page_view immediately when aif is already loaded', () => {
+    const track = vi.fn();
+    (window as unknown as { aif: typeof window.aif }).aif = { track };
+
+    render(<Harness />);
+
+    // Should fire immediately without any timer advancement
+    expect(track).toHaveBeenCalledTimes(1);
   });
 });

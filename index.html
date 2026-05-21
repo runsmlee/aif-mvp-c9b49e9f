@@ -7,7 +7,7 @@
     <meta name="description" content="Reduce LLM API costs with intelligent confidence-based routing. Route requests across GPT-4, Claude, and Gemini — save 30-60% without sacrificing output quality." />
     <meta name="aif-mvp-id" content="%VITE_MVP_ID%" />
     <meta name="aif-api" content="https://www.aifounders.live/api/analytics" />
-    <script async src="https://www.aifounders.live/aif.js"></script>
+    <script async src="https://www.aifounders.live/aif.js" onload="console.log('[aif] analytics script loaded successfully, mvp_id:', document.querySelector('meta[name=aif-mvp-id]')?.content)"></script>
     <link rel="canonical" href="https://routeforge.aifounders.live/" />
     <meta property="og:title" content="RouteForge — The insurance layer for your LLM stack" />
     <meta property="og:description" content="Reduce LLM API costs with intelligent confidence-based routing. Route requests across GPT-4, Claude, and Gemini — save 30-60% without sacrificing output quality." />
@@ -17,7 +17,28 @@
     <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body class="bg-gray-950 text-text-primary antialiased">
-    <div id="root"></div>
+    <div id="root">
+      <!-- Server-rendered fallback: visible without JavaScript -->
+      <div id="fallback-content" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#F9FAFB;background:#030712;text-align:center;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;">
+          <div style="width:2rem;height:2rem;border-radius:0.5rem;background:#B91C1C;display:flex;align-items:center;justify-content:center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          </div>
+          <span style="font-size:1.25rem;font-weight:700;letter-spacing:-0.025em;">Route<span style="color:#B91C1C;">Forge</span></span>
+        </div>
+        <h1 style="font-size:1.5rem;font-weight:700;margin-bottom:0.5rem;">The insurance layer for your LLM stack</h1>
+        <p style="color:#9CA3AF;max-width:28rem;margin-bottom:2rem;">Reduce LLM API costs with intelligent confidence-based routing across GPT-4, Claude, and Gemini — save 30-60% without sacrificing output quality.</p>
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
+          <span style="padding:0.5rem 1rem;background:#1F2937;border-radius:0.5rem;font-size:0.875rem;color:#CBD5E1;border:1px solid #374151;">⚡ Smart routing</span>
+          <span style="padding:0.5rem 1rem;background:#1F2937;border-radius:0.5rem;font-size:0.875rem;color:#CBD5E1;border:1px solid #374151;">💰 30-60% savings</span>
+          <span style="padding:0.5rem 1rem;background:#1F2937;border-radius:0.5rem;font-size:0.875rem;color:#CBD5E1;border:1px solid #374151;">🔒 Fallback chains</span>
+        </div>
+        <noscript>
+          <p style="margin-top:2rem;color:#F59E0B;font-size:0.875rem;">JavaScript is required to use the full RouteForge dashboard. Please enable JavaScript in your browser settings.</p>
+        </noscript>
+        <p id="loading-text" style="margin-top:1.5rem;color:#6B7280;font-size:0.8125rem;">Loading dashboard…</p>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
