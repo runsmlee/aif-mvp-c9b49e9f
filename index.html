@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-<meta name="aif-mvp-id" content="c9b49e9f-f12c-4838-acd5-b037eb399e27" />
+<meta name="aif-mvp-id" content="%VITE_MVP_ID%" />
 <meta name="aif-api" content="https://www.aifounders.live/api/analytics" />
 <script async src="https://www.aifounders.live/aif.js"></script>
 <meta charset="UTF-8" />
@@ -18,25 +18,52 @@
   </head>
   <body class="bg-gray-950 text-text-primary antialiased">
     <div id="root">
-      <!-- Server-rendered fallback: visible without JavaScript -->
-      <div id="fallback-content" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#F9FAFB;background:#030712;text-align:center;">
-        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;">
-          <div style="width:2rem;height:2rem;border-radius:0.5rem;background:#B91C1C;display:flex;align-items:center;justify-content:center;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      <!-- Static landing page: visible immediately without JavaScript -->
+      <div id="fallback-content" style="display:flex;flex-direction:column;min-height:100vh;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#F9FAFB;background:#030712;">
+        <!-- Header -->
+        <header style="border-bottom:1px solid rgba(55,65,81,0.5);background:rgba(17,24,39,0.8);padding:0 1rem;">
+          <div style="max-width:80rem;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:3.5rem;">
+            <div style="display:flex;align-items:center;gap:0.75rem;">
+              <div style="width:2rem;height:2rem;border-radius:0.5rem;background:#B91C1C;display:flex;align-items:center;justify-content:center;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              </div>
+              <span style="font-size:1.125rem;font-weight:700;letter-spacing:-0.025em;">Route<span style="color:#B91C1C;">Forge</span></span>
+            </div>
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <span style="width:6px;height:6px;border-radius:50%;background:#10B981;display:inline-block;"></span>
+              <span style="font-size:0.75rem;color:#9CA3AF;">All systems operational</span>
+            </div>
           </div>
-          <span style="font-size:1.25rem;font-weight:700;letter-spacing:-0.025em;">Route<span style="color:#B91C1C;">Forge</span></span>
-        </div>
-        <h1 style="font-size:1.5rem;font-weight:700;margin-bottom:0.5rem;">The insurance layer for your LLM stack</h1>
-        <p style="color:#9CA3AF;max-width:28rem;margin-bottom:2rem;">Reduce LLM API costs with intelligent confidence-based routing across GPT-4, Claude, and Gemini — save 30-60% without sacrificing output quality.</p>
-        <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
-          <span style="padding:0.5rem 1rem;background:#1F2937;border-radius:0.5rem;font-size:0.875rem;color:#CBD5E1;border:1px solid #374151;">⚡ Smart routing</span>
-          <span style="padding:0.5rem 1rem;background:#1F2937;border-radius:0.5rem;font-size:0.875rem;color:#CBD5E1;border:1px solid #374151;">💰 30-60% savings</span>
-          <span style="padding:0.5rem 1rem;background:#1F2937;border-radius:0.5rem;font-size:0.875rem;color:#CBD5E1;border:1px solid #374151;">🔒 Fallback chains</span>
-        </div>
+        </header>
+        <!-- Hero -->
+        <main style="flex:1;">
+          <div style="max-width:80rem;margin:0 auto;padding:4rem 1rem;text-align:center;">
+            <div style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.375rem 0.75rem;border-radius:9999px;background:rgba(185,28,28,0.1);border:1px solid rgba(185,28,28,0.2);color:#B91C1C;font-size:0.75rem;font-weight:500;margin-bottom:1.5rem;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              Confidence-based LLM routing
+            </div>
+            <h1 style="font-size:1.875rem;font-weight:700;letter-spacing:-0.025em;line-height:1.2;margin-bottom:1rem;">The insurance layer for<br><span style="color:#B91C1C;">your LLM stack</span></h1>
+            <p style="color:#CBD5E1;font-size:1rem;max-width:36rem;margin:0 auto 2rem;line-height:1.625;">Reduce LLM API costs with intelligent confidence-based routing across GPT-4, Claude, and Gemini — save 30-60% without sacrificing output quality.</p>
+            <div style="display:flex;flex-wrap:wrap;gap:0.75rem;justify-content:center;">
+              <span style="padding:0.375rem 0.75rem;background:rgba(31,41,55,0.6);border-radius:0.5rem;font-size:0.75rem;color:#CBD5E1;border:1px solid #1F2937;">⚡ Smart routing</span>
+              <span style="padding:0.375rem 0.75rem;background:rgba(31,41,55,0.6);border-radius:0.5rem;font-size:0.75rem;color:#CBD5E1;border:1px solid #1F2937;">💰 30-60% savings</span>
+              <span style="padding:0.375rem 0.75rem;background:rgba(31,41,55,0.6);border-radius:0.5rem;font-size:0.75rem;color:#CBD5E1;border:1px solid #1F2937;">🔒 Fallback chains</span>
+              <span style="padding:0.375rem 0.75rem;background:rgba(31,41,55,0.6);border-radius:0.5rem;font-size:0.75rem;color:#CBD5E1;border:1px solid #1F2937;">📊 Real-time analytics</span>
+            </div>
+          </div>
+        </main>
+        <!-- Footer -->
+        <footer style="border-top:1px solid rgba(55,65,81,0.5);background:rgba(17,24,39,0.3);padding:1.5rem 1rem;">
+          <div style="max-width:80rem;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:0.625rem;">
+            <div style="width:1.5rem;height:1.5rem;border-radius:0.375rem;background:rgba(185,28,28,0.1);display:flex;align-items:center;justify-content:center;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#B91C1C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            </div>
+            <span style="font-size:0.75rem;color:#9CA3AF;">Route<span style="color:#CBD5E1;">Forge</span> · The insurance layer for your LLM stack</span>
+          </div>
+        </footer>
         <noscript>
-          <p style="margin-top:2rem;color:#F59E0B;font-size:0.875rem;">JavaScript is required to use the full RouteForge dashboard. Please enable JavaScript in your browser settings.</p>
+          <p style="text-align:center;padding:1rem;color:#F59E0B;font-size:0.875rem;">JavaScript is required to use the full RouteForge dashboard. Please enable JavaScript in your browser settings.</p>
         </noscript>
-        <p id="loading-text" style="margin-top:1.5rem;color:#6B7280;font-size:0.8125rem;">Loading dashboard…</p>
       </div>
     </div>
     <script type="module" src="/src/main.tsx"></script>
