@@ -81,7 +81,7 @@ describe('TopLevelErrorBoundary', () => {
         <ThrowingChild shouldThrow={true} />
       </TopLevelErrorBoundary>,
     );
-    expect(screen.getByText('RouteForge failed to load')).toBeInTheDocument();
+    expect(screen.getByText('LogRoute failed to load')).toBeInTheDocument();
   });
 
   it('shows reload button in error state', () => {

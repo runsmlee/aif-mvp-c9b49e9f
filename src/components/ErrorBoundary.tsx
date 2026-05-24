@@ -70,7 +70,7 @@ export class TopLevelErrorBoundary extends Component<TopLevelProps, TopLevelStat
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    console.error('[RouteForge] Fatal render error:', error, errorInfo);
+    console.error('[LogRoute] Fatal render error:', error, errorInfo);
   }
 
   private handleReload = (): void => {
@@ -103,7 +103,7 @@ export class TopLevelErrorBoundary extends Component<TopLevelProps, TopLevelStat
             </svg>
           </div>
           <h1 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem' }}>
-            RouteForge failed to load
+            LogRoute failed to load
           </h1>
           <p style={{ color: '#9CA3AF', maxWidth: '24rem', marginBottom: '1.5rem', fontSize: '0.875rem' }}>
             The application encountered an unexpected error. Please try reloading the page.

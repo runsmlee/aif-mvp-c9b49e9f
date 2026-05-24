@@ -56,7 +56,7 @@ export function LandingPage({ onLaunchDashboard }: LandingPageProps) {
                 </svg>
               </div>
               <h1 className="text-lg font-bold text-text-primary tracking-tight leading-none">
-                Route<span className="text-primary">Forge</span>
+                Log<span className="text-primary">Route</span>
               </h1>
             </div>
             <div className="flex items-center gap-2">
@@ -77,14 +77,18 @@ export function LandingPage({ onLaunchDashboard }: LandingPageProps) {
             Confidence-based LLM routing
           </div>
 
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-tight mb-4">
-            The insurance layer for
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-tight mb-2">
+            Reduce LLM API costs with
             <br />
-            <span className="text-primary">your LLM stack</span>
+            <span className="text-primary">confidence-based routing</span>
           </h2>
 
+          <p className="text-text-muted text-sm sm:text-base max-w-xl mx-auto mb-3 leading-relaxed italic">
+            The insurance layer for your LLM stack
+          </p>
+
           <p className="text-text-secondary text-base sm:text-lg max-w-2xl mx-auto mb-8 leading-relaxed">
-            Reduce LLM API costs with intelligent confidence-based routing across GPT-4, Claude, and Gemini — save 30-60% without sacrificing output quality.
+            Route requests across GPT-4, Claude, and Gemini — save 30-60% without sacrificing output quality.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
@@ -92,7 +96,7 @@ export function LandingPage({ onLaunchDashboard }: LandingPageProps) {
               type="button"
               onClick={handleLaunch}
               className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold rounded-lg bg-primary text-white hover:bg-primary-hover transition-colors duration-200 shadow-lg shadow-primary/25 min-w-[44px] min-h-[44px]"
-              aria-label="Launch the RouteForge dashboard"
+              aria-label="Launch the LogRoute dashboard"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
@@ -124,7 +128,7 @@ export function LandingPage({ onLaunchDashboard }: LandingPageProps) {
       <section id="features" className="border-t border-border/50 bg-surface/30" aria-label="Features">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
           <div className="text-center mb-12">
-            <h3 className="text-2xl sm:text-3xl font-bold tracking-tight mb-3">How RouteForge works</h3>
+            <h3 className="text-2xl sm:text-3xl font-bold tracking-tight mb-3">How LogRoute works</h3>
             <p className="text-text-secondary max-w-xl mx-auto">Route every LLM call through an intelligent layer that balances cost, speed, and quality automatically.</p>
           </div>
 
@@ -186,7 +190,7 @@ export function LandingPage({ onLaunchDashboard }: LandingPageProps) {
             type="button"
             onClick={handleLaunch}
             className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold rounded-lg bg-primary text-white hover:bg-primary-hover transition-colors duration-200 shadow-lg shadow-primary/25 min-h-[44px]"
-            aria-label="Launch the RouteForge dashboard"
+            aria-label="Launch the LogRoute dashboard"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
               <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
@@ -207,7 +211,7 @@ export function LandingPage({ onLaunchDashboard }: LandingPageProps) {
                 </svg>
               </div>
               <span className="text-xs text-text-muted">
-                Route<span className="text-text-secondary">Forge</span> &middot; The insurance layer for your LLM stack
+                Log<span className="text-text-secondary">Route</span> &middot; The insurance layer for your LLM stack
               </span>
             </div>
             <div className="flex items-center gap-4 text-xs text-text-muted">

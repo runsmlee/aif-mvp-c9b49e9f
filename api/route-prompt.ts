@@ -1,5 +1,5 @@
 /**
- * Vercel serverless function for RouteForge prompt routing analysis.
+ * Vercel serverless function for LogRoute prompt routing analysis.
  *
  * Takes a prompt, computes a deterministic confidence score based on
  * prompt characteristics, and returns the routing decision along with
