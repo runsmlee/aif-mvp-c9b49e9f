@@ -1,4 +1,5 @@
 import { trackEvent } from '../hooks/useAnalytics';
+import CodeSnippet from './CodeSnippet';
 
 interface LandingPageProps {
   onLaunchDashboard: () => void;
@@ -104,10 +105,10 @@ export function LandingPage({ onLaunchDashboard }: LandingPageProps) {
               Launch Dashboard
             </button>
             <a
-              href="#features"
+              href="#integration"
               className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium rounded-lg border border-border text-text-secondary hover:text-text-primary hover:border-text-muted transition-colors duration-200 min-h-[44px]"
             >
-              See how it works
+              See the code
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="6 9 12 15 18 9" />
               </svg>
@@ -121,6 +122,19 @@ export function LandingPage({ onLaunchDashboard }: LandingPageProps) {
             <span className="px-3 py-1.5 bg-surface-alt/60 rounded-lg text-xs text-text-secondary border border-border-subtle">🔒 Fallback chains</span>
             <span className="px-3 py-1.5 bg-surface-alt/60 rounded-lg text-xs text-text-secondary border border-border-subtle">📊 Real-time analytics</span>
           </div>
+        </div>
+      </section>
+
+      {/* Integration code snippet — the five-line pitch */}
+      <section id="integration" className="border-t border-border/50 bg-surface/30" aria-label="Integration code example">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+          <div className="text-center mb-8">
+            <h3 className="text-2xl sm:text-3xl font-bold tracking-tight mb-3">Five lines. That's it.</h3>
+            <p className="text-text-secondary max-w-lg mx-auto">
+              Wrap any LLM call with confidence-based routing. If the response is low-confidence, LogRoute automatically escalates to a stronger model.
+            </p>
+          </div>
+          <CodeSnippet />
         </div>
       </section>
 
@@ -147,34 +161,6 @@ export function LandingPage({ onLaunchDashboard }: LandingPageProps) {
                 <p className="text-xs text-text-muted leading-relaxed">{feature.description}</p>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* How it works - 3 steps */}
-      <section className="border-t border-border/50" aria-label="How it works">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
-          <div className="text-center mb-12">
-            <h3 className="text-2xl sm:text-3xl font-bold tracking-tight mb-3">Get started in 3 steps</h3>
-            <p className="text-text-secondary">Set up intelligent routing for your LLM calls in minutes.</p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
-            <div className="text-center">
-              <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold mx-auto mb-3">1</div>
-              <h4 className="text-sm font-semibold text-text-primary mb-1">Connect Provider</h4>
-              <p className="text-xs text-text-muted">Add your LLM provider API key to enable routing.</p>
-            </div>
-            <div className="text-center">
-              <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold mx-auto mb-3">2</div>
-              <h4 className="text-sm font-semibold text-text-primary mb-1">Set Threshold</h4>
-              <p className="text-xs text-text-muted">Configure the confidence score that triggers escalation.</p>
-            </div>
-            <div className="text-center">
-              <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold mx-auto mb-3">3</div>
-              <h4 className="text-sm font-semibold text-text-primary mb-1">Build Chain</h4>
-              <p className="text-xs text-text-muted">Create a fallback chain with multiple models for resilience.</p>
-            </div>
           </div>
         </div>
       </section>

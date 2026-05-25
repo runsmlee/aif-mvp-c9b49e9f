@@ -1,28 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-<meta name="aif-mvp-id" content="%VITE_MVP_ID%" />
+<meta name="aif-mvp-id" content="c9b49e9f-f12c-4838-acd5-b037eb399e27" />
 <meta name="aif-api" content="https://www.aifounders.live/api/analytics" />
 <script async src="https://www.aifounders.live/aif.js"></script>
 <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LogRoute — Reduce LLM API costs with confidence-based routing</title>
-    <meta name="description" content="Reduce LLM API costs with intelligent confidence-based routing. Route requests across GPT-4, Claude, and Gemini — save 30-60% without sacrificing output quality." />
+    <meta name="description" content="Reduce LLM API costs with confidence-based request routing across GPT-4, Claude, and Gemini. Five-line integration, automatic fallback chains, and real-time cost analytics." />
     <link rel="canonical" href="https://logroute.aifounders.live/" />
     <meta property="og:title" content="LogRoute — Reduce LLM API costs with confidence-based routing" />
-    <meta property="og:description" content="Reduce LLM API costs with intelligent confidence-based routing. Route requests across GPT-4, Claude, and Gemini — save 30-60% without sacrificing output quality." />
+    <meta property="og:description" content="Reduce LLM API costs with confidence-based request routing across GPT-4, Claude, and Gemini. Five-line integration, automatic fallback chains, and real-time cost analytics." />
     <meta property="og:image" content="https://logroute.aifounders.live/og-image.png" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://logroute.aifounders.live/" />
     <meta name="twitter:card" content="summary_large_image" />
-    <script type="module" crossorigin src="/assets/index-3A2wlX6d.js"></script>
+    <script type="module" crossorigin src="/assets/index-BA2BfGRT.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/rolldown-runtime-DF2fYuay.js">
     <link rel="modulepreload" crossorigin href="/assets/react-vendor-ziSCPbPI.js">
-    <link rel="modulepreload" crossorigin href="/assets/ErrorBoundary-DUzVzClR.js">
-    <link rel="modulepreload" crossorigin href="/assets/mockData-CK5HY1p_.js">
-    <link rel="modulepreload" crossorigin href="/assets/useLocalStorage-BS72mMtQ.js">
-    <link rel="modulepreload" crossorigin href="/assets/RoutingContext-DAiYOiQs.js">
-    <link rel="stylesheet" crossorigin href="/assets/index-BzsfdZjX.css">
+    <link rel="modulepreload" crossorigin href="/assets/ErrorBoundary-Ccvy1ghx.js">
+    <link rel="modulepreload" crossorigin href="/assets/CodeSnippet-DkD-Fyqb.js">
+    <link rel="modulepreload" crossorigin href="/assets/mockData-K0OuHU2J.js">
+    <link rel="modulepreload" crossorigin href="/assets/useLocalStorage-BY4O1Fjz.js">
+    <link rel="modulepreload" crossorigin href="/assets/RoutingContext-BV6tFiQx.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-DKGJhnpP.css">
   </head>
   <body class="bg-gray-950 text-text-primary antialiased">
     <div id="root">
@@ -61,6 +62,18 @@
             </div>
           </div>
         </main>
+        <!-- Static code snippet for SEO indexing -->
+        <section style="max-width:48rem;margin:0 auto;padding:3rem 1rem;text-align:center;">
+          <h2 style="font-size:1.5rem;font-weight:700;letter-spacing:-0.025em;margin-bottom:0.75rem;color:#F9FAFB;">Five lines. That's it.</h2>
+          <p style="color:#9CA3AF;font-size:0.875rem;max-width:28rem;margin:0 auto 1.5rem;">Wrap any LLM call with confidence-based routing. Low-confidence responses automatically escalate to a stronger model.</p>
+          <div style="background:#030712;border-radius:0.75rem;border:1px solid #1F2937;padding:1rem;font-family:ui-monospace,monospace;font-size:0.8125rem;line-height:1.75;text-align:left;color:#CBD5E1;overflow-x:auto;">
+            <pre style="margin:0;white-space:pre-wrap;">import { LogRoute } from '@logroute/sdk';
+
+const router = new LogRoute({ apiKey: process.env.LOGROUTE_KEY });
+const response = await router.guard('Explain quantum computing');
+console.log(response.model, response.confidence);</pre>
+          </div>
+        </section>
         <!-- Footer -->
         <footer style="border-top:1px solid rgba(55,65,81,0.5);background:rgba(17,24,39,0.3);padding:1.5rem 1rem;">
           <div style="max-width:80rem;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:0.625rem;">
